@@ -100,11 +100,10 @@ Built as a **Progressive Web App (PWA)**, the platform guarantees a seamless, ap
 
 ---
 
-## 📱 Progressive Web App (PWA)
-This project is fully optimized as a PWA. To install it on your device:
-1. Open the platform in Google Chrome (Desktop or Android) or Safari (iOS).
-2. Click the **"Install App"** icon in the URL bar, or select "Add to Home Screen" from the browser menu.
-3. The platform will now function as a standalone, native-feeling application.
+## 📱 Mobile Accessibility via QR Code
+This project is fully optimized for mobile devices as a Progressive Web App (PWA). Instead of requiring a traditional app store installation, users can access the entire platform instantly:
+1. Scan the **QR Code** provided on the platform's home page.
+2. The platform will open in your mobile browser, functioning immediately as a seamless, native-feeling application.
 
 ---
 
