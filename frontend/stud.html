@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI-Powered Student Internship Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Sidebar */
+    .sidebar-left {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background: #0f2e4c;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      z-index: 2000;
+      overflow-y: auto;
+      transition: left 0.3s ease;
+      padding-top: 70px;
+    }
+    .sidebar-left.active { left: 0; }
+    .side-section {
+      padding: 14px;
+      margin: 6px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .side-section:hover { background: #2b7fbf; }
+
+    /* Hamburger */
+    .hamburger {
+      font-size: 26px;
+      cursor: pointer;
+      color: #333;
+      padding: 10px 15px;
+      margin-right: 10px;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* Partner logos */
+    .partner-strip {
+      background: #fff;
+      padding: 16px 0;
+      overflow: hidden;
+      border-top: 1px solid #e6eef6;
+      border-bottom: 1px solid #e6eef6;
+    }
+    .partner-track {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      animation: scroll 30s linear infinite;
+    }
+    .partner-item {
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .partner-item a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Logos in original color and hover scale effect */
+    .partner-item img {
+      height: 46px;
+      width: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+    .partner-item:hover img { transform: scale(1.1); }
+
+    .partner-item span {
+      font-size: 12px;
+      color: #667085;
+      margin-top: 6px;
+      white-space: nowrap;
+    }
+    .partner-strip:hover .partner-track { animation-play-state: paused; }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Chatbot */
+    .chatbot-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #2b7fbf;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(0,0,0,.2);
+      z-index: 100;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    .chatbot-window {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 320px;
+      height: 420px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.2);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 100;
+    }
+    .chatbot-header {
+      background: #0f2e4c;
+      color: #fff;
+      padding: 10px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .chatbot-messages { flex: 1; padding: 10px; overflow-y: auto; font-size: 14px; }
+    .chatbot-input { display: flex; border-top: 1px solid #e6eef6; }
+    .chatbot-input input { flex: 1; border: none; padding: 10px; outline: none; }
+    .chatbot-input button {
+      background: #2b7fbf; border: none; color: #fff; padding: 0 14px; cursor: pointer;
+    }
+
+    /* Buttons hover */
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 14px rgba(0,0,0,.2);
+      transition: all 0.3s ease;
+    }
+
+    /* Sticky topbar */
+    .topbar { position: sticky; top: 0; z-index: 1000; background:#fff; }
+
+    /* Additional Styles for new sections */
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; }
+    section { padding: 40px 20px; }
+    h2 { font-size: 24px; margin-bottom: 20px; }
+    .trending-cards, .job-listings, .internship-listings, .courses-container { display: flex; gap: 20px; overflow-x: auto; scroll-behavior: smooth; }
+    .card { flex: 0 0 250px; background:#fff; border-radius:10px; padding:20px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    .job-card, .internship-card { flex: 0 0 300px; background:#fff; border-radius:10px; padding:15px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    .course-card { flex: 0 0 280px; background:#fff; border-radius:10px; padding:15px; box-shadow:0 2px 6px rgba(0,0,0,0.1); text-align:center; position:relative; }
+    .course-card button { position:absolute; top:50%; transform:translateY(-50%); background:#007bff; color:#fff; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; }
+    .left-arrow { left:-20px; }
+    .right-arrow { right:-20px; }
+    .category-btn { background:#e0e0e0; padding:10px 15px; border-radius:20px; margin-right:10px; cursor:pointer; white-space: nowrap; }
+    .scroll-wrapper { position:relative; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Nav -->
+  <header class="topbar">
+    <div class="container nav">
+      <span class="hamburger" onclick="toggleSidebar()">☰</span>
+      <div class="brand">
+        <img src="https://media.istockphoto.com/id/1477722769/photo/ai-technology-concept-man-uses-holographic-interface-business-analytics-and-global-technology.jpg?s=612x612&w=0&k=20&c=FWpY5XtogS-lEyPMtJz-AYZko2lAWlF49wksQQGaCss=" 
+     alt="Logo" 
+     onerror="this.style.display='none'"
+     style="width:40px; height:40px; object-fit:cover; border-radius:5px;">
+<span>AI-Intern</span>
+
+      </div>
+      <nav class="navlinks">
+        <div class="menus">
+          
+  <div class="menu" onclick="showContent('internships')">Jobs ▾</div>
+  <div class="menu" onclick="showContent('internships')">Internships ▾</div>
+  <div class="menu" onclick="showContent('learning')">Courses <span class="offer">OFFER</span> ▾</div>
+
+
+        </div>
+        <div class="searchwrap">
+          <input type="search" placeholder="Search internships, skills, companies..." />
+        </div>
+        <div class="auth">
+  <!-- Direct links to login and register pages -->
+  <a href="login.html" class="btn ghost">Login</a>
+  <a href="register.html" class="btn primary">Register</a>
+  
+  <!-- Employers shortcut (can directly go to employers.html or later to employer-login.html if you want separate) -->
+  <a href="employers.html" class="for-employers">For employers ›</a>
+</div>
+
+        
+       </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar-left" id="sidebar">
+    <div class="side-section" onclick="showContent('home')">🏠 Home</div>
+    <div class="side-section" onclick="showContent('learning')">📘 Learning Courses</div>
+    <div class="side-section" onclick="window.location.href='resume-builder.html'">📝 Resume Builder</div>
+<div class="side-section" onclick="window.location.href='resume-analyser.html'">📊 Resume Analyser</div>
+
+    <div class="side-section" onclick="showContent('internships')">💼 Internships</div>
+    <div class="side-section" onclick="showContent('chatbot')">🤖 Career Chatbot</div>
+    <div class="side-section" onclick="showContent('skills')">🚀 Future Skills</div>
+    <div class="side-section" onclick="window.location.href='feedback.html'">💬 Feedback</div>
+    <div class="side-section" onclick="window.location.href='view-feedback.html'">📋 View Feedback</div>
+    <!-- Sidebar Sections -->
+<div class="side-section" style="cursor:pointer; padding:12px 20px; border-radius:8px; transition:0.3s; margin-bottom:8px;">
+  <a href="students.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+    🎓 <span style="margin-left:8px;">Students</span>
+  </a>
+</div>
+
+<div class="side-section" style="cursor:pointer; padding:12px 20px; border-radius:8px; transition:0.3s; margin-bottom:8px;">
+  <a href="employers.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+    💼 <span style="margin-left:8px;">Employers</span>
+  </a>
+</div>
+
+<div class="side-section" style="cursor:pointer; padding:12px 20px; border-radius:8px; transition:0.3s; margin-bottom:8px;">
+  <a href="institutions.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+    🏫 <span style="margin-left:8px;">Institutions</span>
+  </a>
+</div>
+
+
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <section id="feedback" style="display:none;">
+        <h2>💬 Feedback</h2>
+        <iframe src="feedback.html" style="width:100%; height:600px; border:none; border-radius:8px;"></iframe>
+    </section>
+    <!-- Hero -->
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-left">
+          <h1><span class="accent">AI-powered Student Internship</span> platform</h1>
+          <p class="sub">
+            For fresher jobs, student internships and courses — with smart recommendations, skill-gap insights, and a career chatbot.
+          </p>
+          <div class="cta-buttons">
+  <a href="https://accounts.google.com/signin" style="text-decoration:none;">
+    <button class="btn white wide">ⓖ Continue with Google</button>
+  </a>
+
+  <a href="https://mail.google.com" style="text-decoration:none;">
+    <button class="btn white outline wide">✉ Continue with Email</button>
+  </a>
+
+  <small class="tnc">By continuing, you agree to our T&amp;C.</small>
+</div>
+
+
+        </div>
+        <div class="hero-right">
+          <img src="https://media.istockphoto.com/id/1359662582/photo/group-of-happy-college-student-stock-photo.jpg?s=1024x1024&w=is&k=20&c=CdHN8_7Kkm5O6yrKv6UOVz6VJpX2Nk8HDC94I_g_Yq0=" 
+               alt="Smiling students with laptop showing thumbs up" 
+               onerror="this.src='https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=1200&auto=format&fit=crop';">
+        </div>
+        <!-- Students Section -->
+<section class="container" id="students" style="display:none;">
+  <h2>For Students</h2>
+  <p>Discover internships, build resumes, and access AI-powered skill courses to boost your career.</p>
+  <ul>
+    <li>Apply to internships with top companies</li>
+    <li>AI-powered resume builder & analyser</li>
+    <li>Future-ready skill development courses</li>
+  </ul>
+</section>
+
+<!-- Employers Section -->
+<section class="container" id="employers" style="display:none;">
+  <h2>For Employers</h2>
+  <p>Find and hire the best student talent quickly with our AI-powered platform.</p>
+  <ul>
+    <li>Post jobs & internships</li>
+    <li>AI-matched candidate recommendations</li>
+    <li>Streamlined resume analysis</li>
+  </ul>
+</section>
+
+<!-- Institutions Section -->
+<section class="container" id="institutions" style="display:none;">
+  <h2>For Institutions</h2>
+  <p>Empower your students with internships, industry connections, and skill development programs.</p>
+  <ul>
+    <li>Track student placements</li>
+    <li>Partner with companies for live projects</li>
+    <li>Offer AI-driven skill gap analysis</li>
+  </ul>
+</section>
+
+      </div>
+    </section>
+
+    <!-- Partner strip -->
+    <!-- Partner strip -->
+    <section class="partner-strip">
+      <div class="partner-track" id="partnerTrack">
+        <div class="partner-item"><a href="https://www.apple.com" target="_blank"><img src="https://cdn.simpleicons.org/apple" alt="Apple"><span>Apple</span></a></div>
+        <div class="partner-item"><a href="https://www.nvidia.com" target="_blank"><img src="https://cdn.simpleicons.org/nvidia" alt="NVIDIA"><span>NVIDIA</span></a></div>
+        <div class="partner-item"><a href="https://www.intel.com" target="_blank"><img src="https://cdn.simpleicons.org/intel" alt="Intel"><span>Intel</span></a></div>
+        <div class="partner-item"><a href="https://www.infosys.com" target="_blank"><img src="https://cdn.simpleicons.org/infosys" alt="Infosys"><span>Infosys</span></a></div>
+        <div class="partner-item"><a href="https://www.wipro.com" target="_blank"><img src="https://cdn.simpleicons.org/wipro" alt="Wipro"><span>Wipro</span></a></div>
+        <div class="partner-item"><a href="https://www.tcs.com" target="_blank"><img src="https://cdn.simpleicons.org/tata" alt="TCS"><span>TCS</span></a></div>
+        <div class="partner-item"><a href="https://www.facebook.com" target="_blank"><img src="https://cdn.simpleicons.org/facebook" alt="Meta"><span>Meta</span></a></div>
+        <div class="partner-item"><a href="https://www.cisco.com" target="_blank"><img src="https://cdn.simpleicons.org/cisco" alt="Cisco"><span>Cisco</span></a></div>
+        <div class="partner-item"><a href="https://www.accenture.com" target="_blank"><img src="https://cdn.simpleicons.org/accenture" alt="Accenture"><span>Accenture</span></a></div>
+        <div class="partner-item"><a href="https://www.cognizant.com" target="_blank"><img src="https://cdn.simpleicons.org/cognizant" alt="Cognizant"><span>Cognizant</span></a></div>
+        <div class="partner-item"><a href="https://www.sap.com" target="_blank"><img src="https://cdn.simpleicons.org/sap" alt="SAP"><span>SAP</span></a></div>
+        <div class="partner-item"><a href="https://www.hcltech.com" target="_blank"><img src="https://cdn.simpleicons.org/hcl" alt="HCL Tech"><span>HCL Tech</span></a></div>
+        
+        
+        <div class="partner-item"><a href="https://www.google.com" target="_blank"><img src="https://cdn.simpleicons.org/google" alt="Google"><span>Google</span></a></div>
+        
+        
+       <div class="partner-item"><a href="https://www.dell.com" target="_blank"><img src="https://cdn.simpleicons.org/dell" alt="Dell"><span>Dell</span></a></div>
+       <div class="partner-item"><a href="https://www.hp.com" target="_blank"><img src="https://cdn.simpleicons.org/hp" alt="HP"><span>HP</span></a></div>
+
+      </div>
+    </section>
+
+
+
+    <!-- Sections -->
+    <section class="container trending" id="learning" style="display:none;">
+      <h2>Learning Courses</h2>
+      <p>Explore AI, Data Science, Web Development, and Cloud with career assistance.</p>
+    </section>
+
+    <section class="container" id="resume-builder" style="display:none;">
+      <h2>Resume Builder</h2>
+      <p>Create professional resumes with AI-powered templates.</p>
+    </section>
+
+    <section class="container" id="resume-analyser" style="display:none;">
+      <h2>Resume Analyser</h2>
+      <p>Upload your resume to get instant feedback and ATS compatibility score.</p>
+    </section>
+
+
+    <section class="container" id="internships" style="display:none;">
+      <h2>Internships</h2>
+      <p>Apply to top internships with stipends up to ₹2.4 LPA.</p>
+    </section>
+
+    <section class="container" id="chatbot" style="display:none;">
+      <h2>Career Chatbot</h2>
+      <p>Chat with our AI career assistant to get job, internship, and skill advice.</p>
+    </section>
+
+    <section class="container" id="skills" style="display:none;">
+      <h2>Future Skills</h2>
+      <p>Learn Blockchain, Cybersecurity, Robotics, and other future-ready skills.</p>
+    </section>
+    
+    <!-- ====== New Sections from second HTML ====== -->
+
+    <!-- Trending Section -->
+    <!-- ====== Updated Sections After Hot Right Now ====== -->
+
+<!-- Hot Right Now Section -->
+<!-- Hot Right Now Section -->
+<section id="hot-right-now">
+  <h2>Hot Right Now</h2>
+  <div class="trending-cards">
+    <!-- your cards stay same -->
+     <!-- AI in Education -->
+    <a href="https://ed.stanford.edu/news/ai-education-how-it-changing-classrooms" target="_blank" class="card">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M12 2a9 9 0 0 0-9 9v3a6 6 0 0 0 6 6h.5v2h-2v2h10v-2h-2v-2H15a6 6 0 0 0 6-6v-3a9 9 0 0 0-9-9z"/>
+        </svg>
+      </div>
+      <img src="https://media.istockphoto.com/id/2210815696/photo/human-hand-reaching-towards-robotic-hand-with-educational-icons-symbolizing-the-future-of.jpg?s=612x612&w=0&k=20&c=NyckoDMvyPZj3LWBZoG5tf3jPLTdo1f6NvY_S7Eq2hU=" alt="AI in Education">
+      <strong>AI in Education</strong>
+      <p>Discover how AI is transforming schools & classrooms.</p>
+    </a>
+
+    <!-- Work From Home -->
+    <a href="https://remote.co/remote-jobs/internships/" target="_blank" class="card">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M3 5h18v12H3zM2 17h20v2H2z"/>
+        </svg>
+      </div>
+      <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="Work From Home Internships">
+      <strong>Work From Home Internships</strong>
+      <p>Find internships you can do fully remote.</p>
+    </a>
+
+    <!-- Top Startups Hiring -->
+    <a href="https://angel.co/jobs" target="_blank" class="card">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M12 2l2 4h4l-3 3 2 4-4-2-3 3-3-3-4 2 2-4-3-3h4z"/>
+        </svg>
+      </div>
+      <img src="https://media.istockphoto.com/id/1144725853/photo/happy-smiling-young-business-man-points-finger-on-signboard-with-sign-we-hiring.jpg?s=612x612&w=is&k=20&c=AJ52AKXPFX3jSxhjAdcHo6QsDtszSTykPXUShQ4hE34=" alt="Top Startups Hiring">
+      <strong>Top Startups Hiring</strong>
+      <p>Explore the hottest startups looking for talent.</p>
+    </a>
+
+    <!-- Summer Bootcamps -->
+    <a href="https://bootcamps.coursereport.com/" target="_blank" class="card">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M12 2l10 6-10 6-10-6 10-6zm0 10v10"/>
+        </svg>
+      </div>
+      <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="Summer Bootcamps">
+      <strong>Summer Bootcamps</strong>
+      <p>Join coding & career bootcamps this summer.</p>
+    </a>
+
+    <!-- Data Science Projects -->
+    <a href="https://www.kaggle.com/datasets" target="_blank" class="card">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M4 20h2V10H4v10zm6 0h2V4h-2v16zm6 0h2v-6h-2v6zm6 0h2v-12h-2v12z"/>
+        </svg>
+      </div>
+      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="Data Science Projects">
+      <strong>Data Science Projects</strong>
+      <p>Work on datasets & projects to sharpen your skills.</p>
+    </a>
+
+    <!-- Cybersecurity Challenges -->
+    <a href="https://ctftime.org/" target="_blank" class="card">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#2563EB" viewBox="0 0 24 24" width="24" height="24">
+          <path d="M12 2a4 4 0 0 0-4 4v4H6v12h12V10h-2V6a4 4 0 0 0-4-4z"/>
+        </svg>
+      </div>
+      <img src="https://media.istockphoto.com/id/1469756553/photo/businessman-wearing-formal-wear-standing-holding-smartphone-with.jpg?s=612x612&w=0&k=20&c=IFikqO9X6FafCADVGZC1dpCCKAr00mjqr1xuQSLqoPU=" alt="Cybersecurity Challenges">
+      <strong>Cybersecurity Challenges</strong>
+      <p>Compete in real-world hacking & CTF challenges.</p>
+    </a>
+  </div>
+</section>
+
+<style>
+#hot-right-now h2 {
+  text-align: left;
+  margin-bottom: 20px;
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.trending-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  background:#f0f4f8;
+  padding:20px;
+  border-radius:12px;
+}
+
+.card {
+  position: relative;
+  text-decoration: none;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  color: #111827;
+}
+
+.card .icon {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+}
+
+.card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.card strong {
+  font-size: 1.1rem;
+  margin: 12px 16px 4px;
+  display: block;
+}
+
+.card p {
+  font-size: 0.9rem;
+  margin: 0 16px 16px;
+  color: #374151;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+</style>
+
+<!-- Actively Hiring Jobs -->
+<section id="actively-hiring">
+  <h2>Actively Hiring</h2>
+  <div class="job-cards">
+
+    <!-- Job 1 -->
+    <div class="card" data-title="Frontend Developer" data-company="MindAI Labs - Bangalore" data-salary="₹15,000 - 20,000 /month" data-description="Work on building interactive front-end applications.">
+      <img src="https://media.istockphoto.com/id/1698385791/photo/businesswoman-waving-hand-to-laptop-screen-ai-hologram-hud-with-glowing-lines.jpg?s=612x612&w=0&k=20&c=kuq84rf75usugFtrbWv9w5fU-iHEI2Kp9iZhyuOgwbk=" alt="Frontend Developer">
+      <strong>Frontend Developer</strong>
+      <p>MindAI Labs - Bangalore</p>
+      <p>₹15,000 - 20,000 /month</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Job 2 -->
+    <div class="card" data-title="Frontend Developer" data-company="NeoTech Solutions - Mumbai" data-salary="₹4,00,000 - 6,00,000 /year" data-description="Work on building responsive front-end solutions.">
+      <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400" alt="Frontend Developer">
+      <strong>Frontend Developer</strong>
+      <p>NeoTech Solutions - Mumbai</p>
+      <p>₹4,00,000 - 6,00,000 /year</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Job 3 -->
+    <div class="card" data-title="Data Analyst Intern" data-company="DataBridge - Hyderabad" data-salary="₹12,000 - 15,000 /month" data-description="Analyze datasets, generate insights and reports.">
+      <img src="https://media.istockphoto.com/id/942989336/photo/young-cute-businesswoman-in-spectacles-demonstrating-graph-to-her-colleague.jpg?s=612x612&w=is&k=20&c=wNg6zLhrECVemiCfxLust00iu4Gwm4Eit1KvTyNdLIw=" alt="Data Analyst">
+      <strong>Data Analyst Intern</strong>
+      <p>DataBridge - Hyderabad</p>
+      <p>₹12,000 - 15,000 /month</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Job 4 -->
+    <div class="card" data-title="AI Engineer" data-company="NextGen AI - Pune" data-salary="₹50,000 - 70,000 /month" data-description="Develop AI models and deploy AI solutions.">
+      <img src="https://media.istockphoto.com/id/2203173927/photo/industry-engineers-working-with-laptop-build-and-develop-organizations-that-can-work-on.jpg?s=612x612&w=0&k=20&c=MmtqhlusA0k7GDrt1BC2HiAy1zBLufzsRBT3lfxf9gQ=" alt="AI Engineer">
+      <strong>AI Engineer</strong>
+      <p>NextGen AI - Pune</p>
+      <p>₹50,000 - 70,000 /month</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Job 5 -->
+    <div class="card" data-title="Software Intern" data-company="CloudTech - Remote" data-salary="₹15,000 - 20,000 /month" data-description="Assist in software development and testing.">
+      <img src="https://media.istockphoto.com/id/1269902486/photo/business-coach-working-with-multi-ethnic-team-friendly-consultations.jpg?s=612x612&w=0&k=20&c=DdqfMLjeATEGZG4ahD9dx1V6EX4DBXgZOWKv7p4jMy8=" alt="Software Intern">
+      <strong>Software Intern</strong>
+      <p>CloudTech - Remote</p>
+      <p>₹15,000 - 20,000 /month</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Modal for Apply Now -->
+<div id="jobModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <p id="modalCompany"></p>
+    <p id="modalSalary"></p>
+    <p id="modalDescription"></p>
+    <a href="apply.html" id="applyBtn" class="btn apply-btn" target="_blank">Apply Now</a>
+  </div>
+</div>
+
+<style>
+/* Keep your existing card sizes and alignment */
+#actively-hiring h2 {
+  text-align: left;
+  margin-bottom: 20px;
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.job-cards {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.card {
+  flex: 0 0 280px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  color: #111827;
+}
+
+.card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.card strong {
+  font-size: 1.1rem;
+  margin: 12px 16px 4px;
+  display: block;
+}
+
+.card p {
+  font-size: 0.9rem;
+  margin: 0 16px 8px;
+  color: #374151;
+}
+
+.card .btn {
+  margin: 10px 16px 16px;
+  padding: 8px 12px;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  text-align: center;
+  display: inline-block;
+}
+
+.card .btn:hover {
+  background: #1e40af;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 280px; /* Match card width */
+  max-width: 90%;
+  text-align: center;
+}
+
+.modal-content h2 {
+  color: #2563eb;
+  margin-bottom: 10px;
+}
+
+.modal-content p {
+  margin: 6px 0;
+  color: #374151;
+}
+
+.apply-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.apply-btn:hover {
+  background: #1e40af;
+}
+
+.close {
+  float: right;
+  font-size: 22px;
+  cursor: pointer;
+  color: #333;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".view-details").forEach(button => {
+    button.addEventListener("click", function(e) {
+      e.preventDefault();
+      const card = this.closest(".card");
+
+      document.getElementById("modalTitle").textContent = card.dataset.title;
+      document.getElementById("modalCompany").textContent = card.dataset.company;
+      document.getElementById("modalSalary").textContent = card.dataset.salary;
+      document.getElementById("modalDescription").textContent = card.dataset.description;
+
+      document.getElementById("applyBtn").setAttribute("href", "apply.html");
+      document.getElementById("jobModal").style.display = "flex";
+    });
+  });
+
+  document.querySelector(".close").onclick = () => document.getElementById("jobModal").style.display = "none";
+  window.onclick = (event) => {
+    if (event.target == document.getElementById("jobModal")) document.getElementById("jobModal").style.display = "none";
+  };
+});
+</script>
+
+
+<!-- Featured Internships -->
+<section id="featured-internships">
+  <h2>Featured Internships</h2>
+  <div class="internship-cards">
+
+    <!-- Internship 1 -->
+    <div class="card" 
+         data-title="Machine Learning Intern" 
+         data-company="AI Global - Pune" 
+         data-salary="₹15,000 /month • 3 Months" 
+         data-description="Work on ML models, data preprocessing, and AI applications.">
+      <img src="https://media.istockphoto.com/id/2222472871/photo/man-presentation-and-screen-for-workshop-with-applause-speech-and-employee-engagement-data.jpg?s=1024x1024&w=is&k=20&c=GP_1o7giiNw-VZ4M-_N0jVlxWPfAgyv8XqH_SZw1_s4=" alt="ML Intern">
+      <strong>Machine Learning Intern</strong>
+      <p>AI Global - Pune</p>
+      <p>₹15,000 /month • 3 Months</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Internship 2 -->
+    <div class="card" 
+         data-title="UI/UX Design Intern" 
+         data-company="DesignHub - Bangalore" 
+         data-salary="₹12,000 /month • 2 Months" 
+         data-description="Assist in designing user interfaces, wireframes, and prototypes.">
+      <img src="https://media.istockphoto.com/id/1702046429/photo/a-website-designer-or-creative-woman-planning-phone-app-development-sketch-template-layout.jpg?s=612x612&w=is&k=20&c=bBHH8VWmLFwqB5-3T2lsefB8tGcGVLDrIBCrXERwfV8=" alt="UI/UX Intern">
+      <strong>UI/UX Design Intern</strong>
+      <p>DesignHub - Bangalore</p>
+      <p>₹12,000 /month • 2 Months</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Internship 3 -->
+    <div class="card" 
+         data-title="Content Writer Intern" 
+         data-company="ThinkWrite - Remote" 
+         data-salary="₹8,000 /month • 1 Month" 
+         data-description="Write blogs, social media content, and articles for clients.">
+      <img src="https://media.istockphoto.com/id/459401519/photo/only-his-best-images-will-be-chosen.jpg?s=612x612&w=is&k=20&c=8elZkF-RDHqA0xhUcehE7iynRPzkuhhd1aUNbrsQmNY=" alt="Content Writer Intern">
+      <strong>Content Writer Intern</strong>
+      <p>ThinkWrite - Work From Home</p>
+      <p>₹8,000 /month • 1 Month</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Internship 4 -->
+    <div class="card" 
+         data-title="Web Development Intern" 
+         data-company="CodeWorks - Hyderabad" 
+         data-salary="₹10,000 /month • 3 Months" 
+         data-description="Develop responsive websites and collaborate with backend developers.">
+      <img src="https://media.istockphoto.com/id/2174481727/photo/two-engaged-business-partners-talking-at-laptop-in-office-cafe.jpg?s=612x612&w=is&k=20&c=raRsDItigd3dvPyw_T6KMQ_eaCwPQcY2DLfIP-PjzTA=" alt="Web Development Intern">
+      <strong>Web Development Intern</strong>
+      <p>CodeWorks - Hyderabad</p>
+      <p>₹10,000 /month • 3 Months</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+    <!-- Internship 5 -->
+    <div class="card" 
+         data-title="Graphic Design Intern" 
+         data-company="CreativeSpark - Remote" 
+         data-salary="₹11,000 /month • 2 Months" 
+         data-description="Create posters, social media designs, and marketing material.">
+      <img src="https://media.istockphoto.com/id/809976948/photo/young-graphic-designer-working-at-office-desk.jpg?s=612x612&w=0&k=20&c=eWSDVfR25N7s-RH5FYOnYFuvgz9NO22Jxj-ZDF6lN2s=" alt="Graphic Design Intern">
+      <strong>Graphic Design Intern</strong>
+      <p>CreativeSpark - Work From Home</p>
+      <p>₹11,000 /month • 2 Months</p>
+      <a href="#" class="btn view-details">View Details</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Modal -->
+<div id="jobModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <p id="modalCompany"></p>
+    <p id="modalSalary"></p>
+    <p id="modalDescription"></p>
+    <!-- ✅ Apply Now Button -->
+    <a href="apply.html" id="applyBtn" class="btn apply-btn" target="_blank">Apply Now</a>
+  </div>
+</div>
+
+<style>
+/* Internship Cards */
+#featured-internships h2 {
+  text-align: left;
+  margin-bottom: 20px;
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.internship-cards {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.internship-cards .card {
+  flex: 0 0 280px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  color: #111827;
+}
+
+.internship-cards .card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.internship-cards .card strong {
+  font-size: 1.1rem;
+  margin: 12px 16px 4px;
+  display: block;
+}
+
+.internship-cards .card p {
+  font-size: 0.9rem;
+  margin: 0 16px 8px;
+  color: #374151;
+}
+
+.internship-cards .card .btn {
+  margin: 10px 16px 16px;
+  padding: 8px 12px;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  text-align: center;
+  display: inline-block;
+}
+
+.internship-cards .card .btn:hover {
+  background: #1e40af;
+}
+
+.internship-cards .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.modal-content h2 {
+  color: #2563eb;
+  margin-bottom: 10px;
+}
+
+.modal-content p {
+  margin: 6px 0;
+  color: #374151;
+}
+
+.apply-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.apply-btn:hover {
+  background: #1e40af;
+}
+
+.close {
+  float: right;
+  font-size: 22px;
+  cursor: pointer;
+  color: #333;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Open modal on click
+  document.querySelectorAll(".view-details").forEach(button => {
+    button.addEventListener("click", function(e) {
+      e.preventDefault();
+      let card = this.closest(".card");
+
+      document.getElementById("modalTitle").textContent = card.dataset.title;
+      document.getElementById("modalCompany").textContent = card.dataset.company;
+      document.getElementById("modalSalary").textContent = card.dataset.salary;
+      document.getElementById("modalDescription").textContent = card.dataset.description;
+
+      // Apply Now button (currently same link for all)
+      document.getElementById("applyBtn").setAttribute("href", "apply.html");
+
+      document.getElementById("jobModal").style.display = "flex";
+    });
+  });
+
+  // Close modal
+  document.querySelector(".close").onclick = function() {
+    document.getElementById("jobModal").style.display = "none";
+  };
+
+  window.onclick = function(event) {
+    if (event.target == document.getElementById("jobModal")) {
+      document.getElementById("jobModal").style.display = "none";
+    }
+  };
+});
+async function getInternships() {
+    try {
+      const res = await fetch("http://localhost:5000/api/internships/all", {
+        headers: { Authorization: "Bearer " + localStorage.getItem("token") }
+      });
+
+      const data = await res.json();
+      console.log(data); // 👈 shows internships in console
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  }
+
+  // Call function when page loads
+  window.onload = getInternships;
+</script>
+
+<!-- Upskill With AI-Powered Courses -->
+<section style="background:#fff8f0; padding:30px; border-radius:12px;">
+  <h2>Upskill With AI-Powered Courses</h2>
+  <div class="trending-cards">
+
+    <!-- Full Stack Development -->
+    <a href="https://www.futureskillsprime.in/course/full-stack-development/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/1305026697/photo/web-development-inscription-against-laptop-and-code-background-learn-web-development.jpg?s=612x612&w=0&k=20&c=cQZ5Lu6oLkrF5SV-eZx-bsnyKqGy6wp8N3SLkORpkqQ=" alt="Full Stack Development">
+      <strong>Full Stack Development</strong>
+      <p>6 Months, Live Sessions</p>
+      <p>₹18 LPA max salary</p>
+    </a>
+
+    <!-- Data Science & AI -->
+    <a href="https://www.futureskillsprime.in/course/data-science-and-ai-certification/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/1094943002/photo/ai-or-the-artificial-intelligence-in-the-future-is-in-the-hands-of-humanity-depending-on-the.jpg?s=612x612&w=0&k=20&c=nyuFT8zNoAfEDdEqQ-QClqE-GDp6_lfyRwIbQZowPyc=" alt="Data Science & AI">
+      <strong>Data Science & AI</strong>
+      <p>6 Months, Live Sessions</p>
+      <p>₹9 LPA max salary</p>
+    </a>
+
+    <!-- Digital Marketing -->
+    <a href="https://www.futureskillsprime.in/course/digital-marketing/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/2163515858/photo/business-team-presenting-boss-ideas-on-meeting-focused-girls-managers-discuss.jpg?s=612x612&w=0&k=20&c=dEdb7WDEbV0DrLSycKAGzZw3wAmSxGx8aUT4L9Nu1KM=" alt="Digital Marketing">
+      <strong>Digital Marketing</strong>
+      <p>5 Months, Live Sessions</p>
+      <p>₹10 LPA max salary</p>
+    </a>
+
+    <!-- UI/UX Design -->
+    <a href="https://www.futureskillsprime.in/course/full-stack-web-development-hybrid-training-program/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/2223442064/photo/two-happy-asian-women-receive-a-shopping-bag-from-a-smiling-store-assistant-after-purchasing.jpg?s=612x612&w=0&k=20&c=G3fAkZq-3HadjLpQFP2pXd9CzI6uP3OyPuAYEdsjQKE=" alt="UI/UX Design">
+      <strong>UI/UX Design</strong>
+      <p>5 Months, Live Sessions</p>
+      <p>₹35,000 stipend</p>
+    </a>
+
+    <!-- Ethical Hacking -->
+    <a href="https://www.futureskillsprime.in/course/ethical-hacking-course/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/1199053170/photo/access-and-malware-concept.jpg?s=612x612&w=0&k=20&c=NqvumkuxOIHFZHws3lReMBVCm58jTpSHShlICAAKHnU=" alt="Ethical Hacking">
+      <strong>Ethical Hacking</strong>
+      <p>4 Months, Live Sessions</p>
+      <p>₹12 LPA max salary</p>
+    </a>
+
+    <!-- Network Security -->
+    <a href="https://www.futureskillsprime.in/course/cisco-certified-network-associate-entreprise-networking-security-and-automation/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/835232934/photo/a-businessman-selecting-a-patent-concept-button.jpg?s=612x612&w=0&k=20&c=oe12M593fR24L3jkZv7VRTUIVmoOnVRQYlV_6l3QT38=" alt="Network Security">
+      <strong>Network Security</strong>
+      <p>3 Months, Live Sessions</p>
+      <p>₹10 LPA max salary</p>
+    </a>
+
+    <!-- Cyber Forensics -->
+    <a href="https://www.futureskillsprime.in/course/cyber-forensics-investigation/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/468587025/photo/fingerprint-analysis.jpg?s=612x612&w=0&k=20&c=2YiDCFhJ6Q0LtDZYBjJti66BR4r9CeiikZRs57z_Hcc=" alt="Cyber Forensics">
+      <strong>Cyber Forensics</strong>
+      <p>3 Months, Live Sessions</p>
+      <p>₹11 LPA max salary</p>
+    </a>
+
+    <!-- Cloud Security -->
+    <a href="https://www.futureskillsprime.in/course/data-science-with-generative-ai/" target="_blank" class="card">
+      <img src="https://media.istockphoto.com/id/946958628/photo/businessman-hand-holding-network.jpg?s=612x612&w=0&k=20&c=uGFbdKLvE2QaJIPyJPPs9Gz_BkfdUdGFWdyz7wYN5HY=" alt="Cloud Security">
+      <strong>Cloud Security</strong>
+      <p>4 Months, Live Sessions</p>
+      <p>₹13 LPA max salary</p>
+    </a>
+
+  </div>
+</section>
+
+<style>
+.trending-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  padding: 20px 0;
+}
+.card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-decoration: none;
+  color: #111827;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+.card strong {
+  margin: 12px 16px 4px;
+  font-size: 1.1rem;
+}
+.card p {
+  margin: 0 16px 12px;
+  font-size: 0.9rem;
+  color: #374151;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+</style>
+
+
+    <!-- Resume Builder & Analyser Section -->
+<!-- Resume Builder & Analyser Interface (Static Section) -->
+<!-- Resume Builder & Analyser Interface (Clickable Buttons) -->
+<section id="resume-interface" style="background:#f0f4f8; padding:40px 30px; border-radius:12px; margin:30px 0;">
+  <h2 style="margin-bottom:20px;">Resume Builder & Analyser</h2>
+  <p style="font-size:16px; margin-bottom:20px;">
+    No resume? No problem. Let us help you create one or improve the one you've got.
+  </p>
+  <ul style="list-style-type: disc; margin-left:20px; font-size:15px; line-height:1.8;">
+    <li><strong>AI-powered resume builder:</strong> Craft professional resumes in minutes.</li>
+    <li><strong>Intelligent feedback engine:</strong> Get actionable insights to improve your resume.</li>
+    <li><strong>Optimized for freshers:</strong> Ensure your resume stands out for entry-level jobs and internships.</li>
+  </ul>
+  <div style="margin-top:25px;">
+    <a href="resume-builder.html">
+      <button style="background:#2b7fbf; color:#fff; border:none; padding:12px 25px; border-radius:8px; font-size:16px; cursor:pointer; margin-right:10px;">
+        Build Your Resume
+      </button>
+    </a>
+    <a href="resume-analyser.html">
+      <button style="background:#fff; color:#2b7fbf; border:2px solid #2b7fbf; padding:12px 25px; border-radius:8px; font-size:16px; cursor:pointer;">
+        Analyse Your Resume
+      </button>
+    </a>
+  </div>
+</section>
+
+<!-- Student Testimonials Section --><!-- Student Testimonials Section -->
+<!-- User Success Stories Section (Text-Based) -->
+<section id="user-feedback" style="background:#fff8f0; padding:40px 30px; border-radius:12px; margin:30px 0;">
+  <h2 style="margin-bottom:20px;">What Our Users Say</h2>
+  <p style="font-size:16px; margin-bottom:20px;">
+    Hear directly from students, employers, and institutions who have benefited from our AI-powered platform.
+  </p>
+  <div style="display:flex; flex-direction:column; gap:20px;">
+    
+    <!-- Student Feedback -->
+    <div style="background:#f0f4f8; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+      <strong>“The AI-powered courses helped me land my first internship within a month!”</strong>
+      <p style="margin-top:8px; font-size:14px; color:#555;">— Priya Sharma, Data Science Student</p>
+    </div>
+
+    <!-- Employer Feedback -->
+    <div style="background:#f0f4f8; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+      <strong>“The platform made shortlisting candidates effortless. We found the perfect interns quickly.”</strong>
+      <p style="margin-top:8px; font-size:14px; color:#555;">— Rajesh Kumar, Hiring Manager, TechNova</p>
+    </div>
+
+    <!-- Institution Feedback -->
+    <div style="background:#f0f4f8; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+      <strong>“Integrating our courses with this platform increased student engagement and placement rates.”</strong>
+      <p style="margin-top:8px; font-size:14px; color:#555;">— Dr. Meera Joshi, Head of Training, Global Institute</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- Chatbot Floating Widget -->
+  <button class="chatbot-btn" onclick="toggleChatbot()">💬</button>
+  <div class="chatbot-window" id="chatbotBox">
+    <div class="chatbot-header">AI Career Chatbot</div>
+    <div class="chatbot-messages" id="chatMessages">
+      <div><b>Bot:</b> Hi! Ask me about careers, skills or internships.</div>
+    </div>
+    <div class="chatbot-input">
+      <input type="text" id="chatInput" placeholder="Type a message..."/>
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+  // Toggle sidebar
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+  }
+
+  // Show main content section
+  function showContent(section) {
+    document.querySelectorAll(".main-content section").forEach(sec => {
+      if (sec.id) sec.style.display = "none";
+    });
+    document.getElementById(section).style.display = "block";
+    window.scrollTo({ top: document.getElementById(section).offsetTop - 60, behavior: 'smooth' });
+  }
+
+  // Toggle chatbot
+  function toggleChatbot() {
+    const box = document.getElementById("chatbotBox");
+    box.style.display = box.style.display === "flex" ? "none" : "flex";
+  }
+
+  // Send chatbot message
+  function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const messages = document.getElementById("chatMessages");
+    if (input.value.trim() === "") return;
+    messages.innerHTML += `<div><b>You:</b> ${input.value}</div>`;
+    messages.innerHTML += `<div><b>Bot:</b> I’ll get back on “${input.value}” soon! 🚀</div>`;
+    input.value = "";
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // Dynamic card navigation / scroll
+  document.addEventListener('click', function(e) {
+    // Helper function
+    const handleCardClick = (selector) => {
+      const card = e.target.closest(selector);
+      if (card) {
+        const link = card.getAttribute('data-link');
+        const targetSection = card.getAttribute('data-section');
+        if (link) {
+          window.location.href = link; // Navigate to external page
+        } else if (targetSection) {
+          showContent(targetSection); // Scroll to section on same page
+        }
+      }
+    }
+
+    handleCardClick('.trending-cards .card');
+    handleCardClick('.job-listings .job-card');
+    handleCardClick('.internship-listings .internship-card');
+    handleCardClick('.courses-container .course-card');
+  });
+
+  // Set cursor to pointer for all clickable cards
+  function setCardCursor() {
+    document.querySelectorAll('.trending-cards .card, .job-listings .job-card, .internship-listings .internship-card, .courses-container .course-card')
+      .forEach(card => card.style.cursor = 'pointer');
+  }
+
+  window.addEventListener('DOMContentLoaded', setCardCursor);
+</script>
+</body>
+</html> 
+    <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand foot"><span>AI-Intern</span></div>
+        <p>AI-powered student internship platform connecting students, employers & institutions.</p>
+      </div>
+      <div>
+        <h5>Explore</h5>
+        <ul><li>Internships</li><li>Jobs</li><li>Courses</li></ul>
+      </div>
+      <div>
+        <h5>For Employers</h5>
+        <ul><li>Post an Internship</li><li>Shortlisting</li><li>Pricing</li></ul>
+      </div>
+      <div>
+        <h5>Support</h5>
+        <ul><li>Help Center</li><li>Contact</li><li>Terms & Privacy</li></ul>
+      </div>
+    </div>
+    <div class="footer-bar">© 2025 AI-Intern. All rights reserved.</div>
+  </footer>

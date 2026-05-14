@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Intern Login</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(120deg, #2563eb, #9333ea);
+  }
+  .card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    width: 380px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: slideUp 0.8s ease;
+  }
+  .card img { width: 70px; margin-bottom: 10px; }
+  .card h2 { margin: 0 0 10px; color: #1e293b; }
+  .card p { color: #64748b; margin-bottom: 25px; font-size: 14px; }
+  input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: 0.3s;
+  }
+  input:focus, select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 6px rgba(37,99,235,0.3);
+    outline: none;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(90deg, #2563eb, #9333ea);
+    color: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  }
+  .links { margin-top: 15px; font-size: 14px; }
+  .links a { color: #2563eb; text-decoration: none; margin: 0 5px; }
+  .links a:hover { text-decoration: underline; }
+  .msg {
+    margin-top: 15px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .msg.show { opacity: 1; }
+  .success { color: green; }
+  .error { color: red; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="login icon">
+  <h2>Welcome Back</h2>
+  <p>Login to continue your journey 🚀</p>
+
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="📧 Email" required>
+    <input type="password" id="password" placeholder="🔑 Password" required>
+    <select id="role" required>
+      <option value="">-- Select Role --</option>
+      <option value="student">🎓 Student</option>
+      <option value="employer">💼 Employer</option>
+      <option value="institution">🏫 Institution</option>
+    </select>
+    <button type="submit">Login</button>
+  </form>
+
+  <div class="links">
+    <a href="forgot-password.html">Forgot Password?</a> |
+    <a href="register.html">Register</a>
+  </div>
+
+  <!-- Google Sign-In Button -->
+  <div style="margin-top: 15px; text-align:center;">
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+  </div>
+
+  <div class="msg" id="message"></div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+const loginForm = document.getElementById("loginForm");
+const messageBox = document.getElementById("message");
+const API_URL = "http://localhost:5000";
+
+// Helper: Redirect based on role
+function redirectByRole(role) {
+  role = role?.toLowerCase();
+  if (role === "student") window.location.href = "students.html";
+  else if (role === "employer") window.location.href = "employers.html";
+  else if (role === "institution") window.location.href = "institutions.html";
+  else window.location.href = "/login.html"; // fallback
+}
+
+// Helper: Show message
+function showMessage(text, type="success") {
+  messageBox.textContent = text;
+  messageBox.className = `msg ${type} show`;
+}
+
+// Normal login
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const role = document.getElementById("role").value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, role }),
+    });
+
+    const data = await res.json();
+    console.log("Login response:", data); // <-- Debug
+
+    if (res.ok && data.user && data.user.role) {
+      localStorage.setItem("token", data.token);
+      showMessage("✅ Login successful! Redirecting...");
+      setTimeout(() => redirectByRole(data.user.role), 1200);
+    } else {
+      showMessage(data.message || "❌ Login failed", "error");
+    }
+  } catch (err) {
+    console.error(err);
+    showMessage("❌ Network error. Make sure backend is running.", "error");
+  }
+});
+
+// Google login
+function handleCredentialResponse(response) {
+  fetch(`${API_URL}/api/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ credential: response.credential })
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("Google login response:", data); // <-- Debug
+    if (data.user && data.user.role) {
+      localStorage.setItem("token", data.token);
+      showMessage("✅ Google Login successful! Redirecting...");
+      setTimeout(() => redirectByRole(data.user.role), 1200);
+    } else {
+      showMessage("❌ Google login failed.", "error");
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    showMessage("❌ Network error during Google login.", "error");
+  });
+}
+
+// Initialize Google Sign-In
+window.onload = () => {
+  google.accounts.id.initialize({
+    client_id: "your_client_id",
+    callback: handleCredentialResponse
+  });
+  google.accounts.id.renderButton(
+    document.querySelector(".g_id_signin"),
+    { theme: "outline", size: "large" }
+  );
+};
+
+
+</script>
+
+</body>
+</html>

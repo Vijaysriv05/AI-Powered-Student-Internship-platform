@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Employer Profile | AI-Intern</title>
+<style>
+  /* Styles follow the student file for consistent look */
+  body { margin:0; font-family:'Segoe UI',sans-serif; background:#f3f4f6; }
+  header { background:linear-gradient(90deg,#2563eb,#9333ea); padding:15px 30px; color:#fff; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { margin:0; font-size:20px; }
+  header a { color:#fff; text-decoration:none; font-weight:bold; transition: color 0.3s, transform 0.3s; }
+  header a:hover { color:#ffeb3b; transform: scale(1.05); }
+  main { padding:30px; max-width:900px; margin:auto; display:flex; flex-direction:column; gap:20px; }
+  .profile-card { background:#fff; border-radius:12px; padding:25px; box-shadow:0 5px 15px rgba(0,0,0,0.1); display:flex; gap:30px; align-items:flex-start; flex-wrap:wrap; transition: transform 0.3s, box-shadow 0.3s; }
+  .profile-card:hover { transform: translateY(-3px); box-shadow:0 12px 25px rgba(0,0,0,0.15); }
+  .profile-left { flex:1; min-width:250px; text-align:center; }
+  .profile-left img { width:140px; height:140px; border-radius:50%; object-fit:cover; margin-bottom:15px; cursor:pointer; transition:0.4s; }
+  .profile-left img:hover { transform: scale(1.08) rotate(-3deg); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+  .profile-left input { display:none; }
+  .profile-left h2 { margin:5px 0; color:#2563eb; transition: color 0.3s; }
+  .profile-left h2:hover { color:#9333ea; }
+  .profile-left p { margin:5px 0; color:#333; }
+  .profile-right { flex:2; min-width:300px; }
+  .profile-right h3 { color:#2563eb; margin-bottom:10px; }
+  .profile-details { display:flex; flex-direction:column; gap:15px; }
+  .profile-details label { font-weight:bold; margin-bottom:5px; display:block; }
+  .profile-details input, .profile-details textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; font-size:14px; transition:0.3s; }
+  .profile-details input:focus, .profile-details textarea:focus { border-color:#9333ea; box-shadow:0 0 8px rgba(147,51,234,0.3); outline:none; }
+  .save-btn, .file-upload-label { margin-top:10px; padding:12px 20px; font-size:16px; font-weight:bold; border:none; border-radius:10px; background:linear-gradient(90deg,#2563eb,#9333ea); color:#fff; cursor:pointer; transition:0.3s, transform 0.3s, box-shadow 0.3s; display:inline-block; }
+  .save-btn:hover, .file-upload-label:hover { transform:translateY(-3px) scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.25); background:linear-gradient(90deg,#9333ea,#ff6fff); }
+  .progress-bar { background:#e0e0e0; border-radius:12px; overflow:hidden; height:20px; width:100%; margin-bottom:10px; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#2563eb,#9333ea); text-align:right; color:#fff; padding-right:5px; line-height:20px; font-weight:bold; width:0%; transition: width 1s ease-in-out, background 0.3s; }
+  .certificates-section { margin-top:20px; }
+  .certificates-list { margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+  .certificate { background:#f3f4f6; padding:8px 12px; border-radius:8px; font-size:14px; color:#333; display:flex; justify-content:space-between; align-items:center; transition:0.3s; cursor:default; position:relative; }
+  .certificate:hover { background:#e0e0e0; transform:translateX(3px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+  .certificate .remove-cert { color:red; font-weight:bold; cursor:pointer; transition: color 0.3s, transform 0.3s; }
+  .certificate .remove-cert:hover { color:#ff0000; transform: scale(1.2); }
+  input[type="file"] { display:none; }
+  @media(max-width:900px){ .profile-card{ flex-direction:column; align-items:center; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Employer Profile</h1>
+  <a href="employers.html">Back to Dashboard</a>
+</header>
+
+<main>
+  <div class="profile-card">
+    <div class="profile-left">
+      <img id="profileAvatar" src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" alt="Employer Avatar" title="Click to change">
+      <input type="file" id="avatarUpload" accept="image/*">
+      <h2 id="profileName">Loading...</h2>
+      <p id="role">🏢 Employer</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="profileCompletion">0%</div>
+      </div>
+    </div>
+
+    <div class="profile-right">
+      <div class="profile-details">
+        <div>
+          <label for="companyName">Company Name</label>
+          <input type="text" id="companyName">
+        </div>
+        <div>
+          <label for="companyEmail">Email</label>
+          <input type="email" id="companyEmail">
+        </div>
+        <div>
+          <label for="industry">Industry</label>
+          <input type="text" id="industry">
+        </div>
+        <div>
+          <label for="website">Website</label>
+          <input type="text" id="website">
+        </div>
+        <div>
+          <label for="employees">Number of Employees</label>
+          <input type="number" id="employees" min="0">
+        </div>
+        <div>
+          <label for="description">Description</label>
+          <textarea id="description" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="certificates-section">
+        <h3>Company Document</h3>
+        <label class="file-upload-label" for="docUpload">Upload Document</label>
+        <input type="file" id="docUpload" accept=".pdf,.doc,.docx,.png,.jpg">
+        <p id="docStatus" data-name="">No document uploaded</p>
+      </div>
+
+      <div class="certificates-section">
+        <h3>Certificates / Company Profiles</h3>
+        <label class="file-upload-label" for="certUpload">Upload Certificate</label>
+        <input type="file" id="certUpload" accept=".pdf,.jpg,.png,.doc,.docx">
+        <div class="certificates-list" id="certificatesList"></div>
+      </div>
+
+      <button class="save-btn" id="saveProfile">Save Changes</button>
+    </div>
+  </div>
+</main>
+
+<script>
+// ---------- Helper: current employer key ----------
+function getCurrentEmployerKey() {
+  // If your login stores an employerName in localStorage, it will be used.
+  // Otherwise fallback to "Employer Name" (individual profile key).
+  return localStorage.getItem("employerName") || "Employer Name";
+}
+
+// ---------- Load ----------
+function loadEmployerProfile() {
+  const key = getCurrentEmployerKey();
+  const avatar = localStorage.getItem(`${key}-avatar`) || "https://cdn-icons-png.flaticon.com/512/1256/1256650.png";
+  const name = localStorage.getItem(`${key}-display`) || key;
+  const email = localStorage.getItem(`${key}-email`) || "";
+  const industry = localStorage.getItem(`${key}-industry`) || "";
+  const website = localStorage.getItem(`${key}-website`) || "";
+  const employees = localStorage.getItem(`${key}-employees`) || "";
+  const description = localStorage.getItem(`${key}-description`) || "";
+  const doc = localStorage.getItem(`${key}-doc`) || "No document uploaded";
+  const certificates = JSON.parse(localStorage.getItem(`${key}-certificates`) || "[]");
+
+  document.getElementById("profileAvatar").src = avatar;
+  document.getElementById("profileName").textContent = name;
+  document.getElementById("companyName").value = name;
+  document.getElementById("companyEmail").value = email;
+  document.getElementById("industry").value = industry;
+  document.getElementById("website").value = website;
+  document.getElementById("employees").value = employees;
+  document.getElementById("description").value = description;
+  document.getElementById("docStatus").textContent = doc;
+  document.getElementById("docStatus").setAttribute("data-name", doc);
+
+  const certList = document.getElementById("certificatesList");
+  certList.innerHTML = "";
+  certificates.forEach((cert, index) => {
+    const div = document.createElement("div");
+    div.className = "certificate";
+    div.setAttribute("data-name", cert);
+    div.innerHTML = `<span>${cert}</span> <span class="remove-cert" data-index="${index}">&times;</span>`;
+    certList.appendChild(div);
+  });
+
+  attachCertificateRemove(certificates);
+  updateProfileCompletion({name, avatar, email, industry, website, doc, certificates});
+}
+
+// ---------- Save ----------
+function saveEmployerProfile() {
+  const key = document.getElementById("companyName").value || getCurrentEmployerKey();
+  const avatar = document.getElementById("profileAvatar").src;
+  const email = document.getElementById("companyEmail").value;
+  const industry = document.getElementById("industry").value;
+  const website = document.getElementById("website").value;
+  const employees = document.getElementById("employees").value;
+  const description = document.getElementById("description").value;
+  const doc = document.getElementById("docStatus").textContent;
+  const certificates = JSON.parse(localStorage.getItem(`${key}-certificates`) || "[]");
+
+  localStorage.setItem("employerName", key);
+  localStorage.setItem(`${key}-display`, key);
+  localStorage.setItem(`${key}-avatar`, avatar);
+  localStorage.setItem(`${key}-email`, email);
+  localStorage.setItem(`${key}-industry`, industry);
+  localStorage.setItem(`${key}-website`, website);
+  localStorage.setItem(`${key}-employees`, employees);
+  localStorage.setItem(`${key}-description`, description);
+  localStorage.setItem(`${key}-doc`, doc);
+  localStorage.setItem(`${key}-certificates`, JSON.stringify(certificates));
+
+  alert("Profile saved successfully!");
+  loadEmployerProfile();
+}
+
+// ---------- Certificate remove ----------
+function attachCertificateRemove(certificates) {
+  document.querySelectorAll(".remove-cert").forEach(el => {
+    el.addEventListener("click", () => {
+      const idx = Number(el.getAttribute("data-index"));
+      certificates.splice(idx, 1);
+      const key = getCurrentEmployerKey();
+      localStorage.setItem(`${key}-certificates`, JSON.stringify(certificates));
+      loadEmployerProfile();
+    });
+  });
+}
+
+// ---------- Avatar upload ----------
+document.getElementById("profileAvatar").addEventListener("click", ()=>document.getElementById("avatarUpload").click());
+document.getElementById("avatarUpload").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=> {
+    document.getElementById("profileAvatar").src = reader.result;
+    const key = getCurrentEmployerKey();
+    localStorage.setItem(`${key}-avatar`, reader.result);
+  };
+  reader.readAsDataURL(file);
+});
+
+// ---------- Document upload ----------
+document.getElementById("docUpload").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const key = getCurrentEmployerKey();
+  localStorage.setItem(`${key}-doc`, file.name);
+  document.getElementById("docStatus").textContent = file.name;
+  document.getElementById("docStatus").setAttribute("data-name", file.name);
+});
+
+// ---------- Certificate upload ----------
+document.getElementById("certUpload").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const key = getCurrentEmployerKey();
+  const certs = JSON.parse(localStorage.getItem(`${key}-certificates`) || "[]");
+  certs.push(file.name);
+  localStorage.setItem(`${key}-certificates`, JSON.stringify(certs));
+  loadEmployerProfile();
+});
+
+// ---------- Progress calculation ----------
+function updateProfileCompletion(user){
+  let completed=0, total=7;
+  if(user.name) completed++;
+  if(user.avatar) completed++;
+  if(user.email) completed++;
+  if(user.industry) completed++;
+  if(user.website) completed++;
+  if(user.doc && user.doc !== "No document uploaded") completed++;
+  if(user.certificates && user.certificates.length>0) completed++;
+  const percent = Math.round((completed/total)*100);
+  const bar = document.getElementById("profileCompletion");
+  bar.style.width = percent + "%";
+  bar.textContent = percent + "%";
+}
+
+// ---------- Events ----------
+document.getElementById("saveProfile").addEventListener("click", saveEmployerProfile);
+document.addEventListener("DOMContentLoaded", loadEmployerProfile);
+</script>
+
+</body>
+</html>
+
+
+
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employer Profile | AI-Intern</title>
+<style>
+  body { margin:0; font-family:'Segoe UI',sans-serif; background:#f3f4f6; padding:20px; }
+
+  header { background:linear-gradient(90deg,#2563eb,#9333ea); padding:15px 30px; color:#fff; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { margin:0; font-size:20px; }
+  header a { color:#fff; text-decoration:none; font-weight:bold; transition: color 0.3s, transform 0.3s; }
+  header a:hover { color:#ffeb3b; transform: scale(1.05); }
+
+  main { padding:30px; max-width:900px; margin:auto; display:flex; flex-direction:column; gap:20px; }
+
+  .profile-card {
+    background:#fff;
+    border-radius:12px;
+    padding:25px;
+    max-width:600px;
+    margin:auto;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+
+  .profile-left { text-align:center; }
+  .profile-left img {
+    width:120px;
+    height:120px;
+    border-radius:12px;
+    object-fit:cover;
+    margin-bottom:15px;
+    cursor:pointer;
+    transition:0.4s;
+  }
+  .profile-left img:hover { transform:scale(1.08); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+
+  .profile-details input, .profile-details textarea {
+    width:100%;
+    margin:8px 0;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    font-size:14px;
+    transition:0.3s;
+  }
+  .profile-details input:focus, .profile-details textarea:focus {
+    border-color:#9333ea;
+    box-shadow:0 0 8px rgba(147,51,234,0.3);
+    outline:none;
+  }
+  .profile-details textarea { resize:vertical; min-height:80px; }
+
+  .btn, .save-btn { padding:10px 14px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; margin-top:10px; font-weight:bold; transition:0.3s; }
+  .btn:hover, .save-btn:hover { transform:scale(1.05); background:linear-gradient(90deg,#9333ea,#ff6fff); }
+
+  .progress-bar { background:#eef2ff; border-radius:999px; height:18px; overflow:hidden; margin-top:8px; }
+  .progress-fill { height:100%; width:0; background:linear-gradient(90deg,#2563eb,#9333ea); text-align:right; padding-right:8px; color:#fff; font-weight:600; line-height:18px; font-size:12px; transition:width .7s ease; }
+
+  @media(max-width:600px){ .profile-card{ flex-direction:column; align-items:center; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Employer Profile</h1>
+  <a href="employers.html">Back to Dashboard</a>
+</header>
+
+<main>
+  <div class="profile-card">
+    <div class="profile-left">
+      <img id="logo" src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Company Logo" title="Click to change">
+      <input type="file" id="logoUpload" accept="image/*" style="display:none;">
+    </div>
+
+    <div class="profile-details">
+      <input type="text" id="companyName" placeholder="Company Name">
+      <input type="email" id="companyEmail" placeholder="Email">
+      <input type="text" id="industry" placeholder="Industry">
+      <input type="text" id="website" placeholder="Website">
+      <input type="number" id="employees" placeholder="Number of Employees">
+      <textarea id="description" placeholder="Company Description"></textarea>
+
+      <div class="progress-bar"><div class="progress-fill" id="profileCompletion">0%</div></div>
+
+      <button class="btn save-btn" id="saveProfile">Save Profile</button>
+    </div>
+  </div>
+
+  //Optional Preview 
+  <div style="margin-top:30px;">
+    <h3>Preview:</h3>
+    <div id="companyNamePreview"></div>
+    <div id="descriptionPreview"></div>
+    <div id="contactEmailPreview"></div>
+  </div>
+</main>
+<script>
+const fields = ["companyName","companyEmail","industry","website","employees","description"];
+const logo = document.getElementById("logo");
+const saveBtn = document.getElementById("saveProfile");
+
+// JWT token after login
+const token = localStorage.getItem("token");
+if (!token) {
+  alert("You are not logged in!");
+  window.location.href = "/login.html";
+}
+
+// Load profile
+async function loadProfile() {
+  try {
+    const res = await fetch("/api/auth/authRoutes.js", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch profile");
+
+    const data = await res.json();
+    const user = data.user;
+    const employerProfile = user?.role === "employer" ? user.employer : null;
+
+    document.getElementById("companyEmail").value = user?.email || "";
+
+    if (employerProfile) {
+      document.getElementById("companyName").value = employerProfile.companyName || "";
+      document.getElementById("industry").value = employerProfile.industry || "";
+      document.getElementById("website").value = employerProfile.website || "";
+      document.getElementById("employees").value = employerProfile.employees || "";
+      document.getElementById("description").value = employerProfile.description || "";
+      if (employerProfile.avatar) logo.src = employerProfile.avatar;
+    }
+
+    updateProfileCompletion();
+    updatePreview();
+  } catch (err) {
+    console.error("Error fetching employer profile:", err);
+    alert("Network error while loading profile. Please login again.");
+    window.location.href = "/login.html";
+  }
+}
+
+// Save profile
+async function saveProfile() {
+  const payload = {};
+  fields.forEach(id => payload[id] = document.getElementById(id).value);
+  payload.avatar = logo.src;
+
+  try {
+    const res = await fetch("/api/auth/profile", {
+      method: "PUT",
+      headers: { 
+        "Content-Type":"application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if(res.ok){
+      alert("Profile saved successfully!");
+      updateProfileCompletion();
+      updatePreview();
+    } else {
+      alert(data.message || "Error saving profile.");
+    }
+  } catch(err){
+    console.error(err);
+    alert("Network error. Try again later.");
+  }
+}
+
+// Profile completion bar
+function updateProfileCompletion(){
+  let completed = logo.src && logo.src !== "https://cdn-icons-png.flaticon.com/512/732/732200.png" ? 1 : 0;
+  fields.forEach(id => { if(document.getElementById(id).value.trim() !== "") completed++; });
+  const percent = Math.round((completed/(fields.length+1))*100);
+  const bar = document.getElementById("profileCompletion");
+  bar.style.width = percent + "%";
+  bar.textContent = percent + "%";
+}
+
+// Update preview
+function updatePreview(){
+  document.getElementById("companyNamePreview").textContent = document.getElementById("companyName").value || '';
+  document.getElementById("descriptionPreview").textContent = document.getElementById("description").value || '';
+  document.getElementById("contactEmailPreview").textContent = document.getElementById("companyEmail").value || '';
+}
+
+// Logo upload
+logo.addEventListener("click", ()=>document.getElementById("logoUpload").click());
+document.getElementById("logoUpload").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{ logo.src = reader.result; updateProfileCompletion(); };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Input changes
+fields.forEach(id => document.getElementById(id).addEventListener("input", ()=>{
+  updateProfileCompletion();
+  updatePreview();
+}));
+
+// Save button
+saveBtn.addEventListener("click", saveProfile);
+
+// ================= Added Function =================
+async function loadEmployerProfile() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:5000/api/employer/profile", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    }
+  });
+
+  if (res.status === 401) {
+    alert("Please login first");
+    window.location.href = "/login.html";
+    return;
+  }
+
+  const data = await res.json();
+  console.log("Employer Profile:", data);
+
+  // Make sure you have an element with id="profileName" in your HTML if you want this line to work
+  if (document.getElementById("profileName")) {
+    document.getElementById("profileName").innerText = data.name;
+  }
+}
+
+// Load profile on page load
+document.addEventListener("DOMContentLoaded", loadProfile);
+</script>
+
+</body>
+</html>-->
+

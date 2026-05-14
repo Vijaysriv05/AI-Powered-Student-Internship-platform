@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Active Jobs | AI-Intern</title>
+  <style>
+    :root {
+      --primary1: #2563eb;
+      --primary2: #9333ea;
+      --bg: #f3f4f6;
+      --white: #fff;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary1), var(--primary2));
+      color: var(--white);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    header h1 {
+      font-size: 22px;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    header button {
+      background: #fff;
+      color: var(--primary1);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    header button:hover {
+      background: rgba(255,255,255,0.9);
+      transform: scale(1.05);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h2 {
+      color: var(--primary2);
+      text-align: center;
+    }
+
+    .form-card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+
+    .form-card input,
+    .form-card textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    .form-card input:focus,
+    .form-card textarea:focus {
+      border-color: var(--primary1);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    .form-card button {
+      background: linear-gradient(90deg, var(--primary1), var(--primary2));
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 10px;
+      width: 100%;
+      transition: 0.3s;
+    }
+
+    .form-card button:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    #jobContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .job-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease;
+    }
+
+    .job-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .job-card h3 {
+      color: var(--primary1);
+      margin-bottom: 10px;
+    }
+
+    .job-card p {
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🟢 Active Internship Listings</h1>
+    <button id="backBtn">← Back to Dashboard</button>
+  </header>
+
+  <div class="container">
+    <h2>📋 Post a New Internship</h2>
+
+    <form id="internshipForm" class="form-card">
+      <input type="text" id="title" placeholder="Job Title" required />
+      <input type="text" id="location" placeholder="Location" required />
+      <input type="text" id="stipend" placeholder="Stipend" />
+      <input type="text" id="duration" placeholder="Duration" />
+      <textarea id="description" placeholder="Job Description"></textarea>
+      <button type="submit">🚀 Post Internship</button>
+    </form>
+
+    <h2>🎯 Currently Active Internships</h2>
+    <div id="jobContainer"></div>
+  </div>
+
+  <script>
+    const jobContainer = document.getElementById("jobContainer");
+    const backBtn = document.getElementById("backBtn");
+
+    // ✅ Back to employer dashboard
+    backBtn.addEventListener("click", () => {
+      window.location.href = "employers.html";
+    });
+
+    // ✅ Fetch & Display Active Internships
+    async function loadActiveJobs() {
+      try {
+        const res = await fetch("/api/internships/active");
+        const jobs = await res.json();
+
+        jobContainer.innerHTML = "";
+        if (!jobs.length) {
+          jobContainer.innerHTML = "<p>No active internships available yet.</p>";
+          return;
+        }
+
+        jobs.forEach(job => {
+          const card = document.createElement("div");
+          card.className = "job-card";
+          card.innerHTML = `
+            <h3>${job.title}</h3>
+            <p><strong>📍 Location:</strong> ${job.location}</p>
+            <p><strong>💰 Stipend:</strong> ${job.stipend || "Not specified"}</p>
+            <p><strong>🕒 Duration:</strong> ${job.duration || "Not specified"}</p>
+            <p><strong>📝 Description:</strong> ${job.description || ""}</p>
+          `;
+          jobContainer.appendChild(card);
+        });
+      } catch (error) {
+        console.error("Error fetching active internships:", error);
+        jobContainer.innerHTML = "<p>⚠️ Error loading active internships.</p>";
+      }
+    }
+
+    // ✅ Post new internship (works same as dashboard)
+    document.getElementById("internshipForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById("title").value;
+      const location = document.getElementById("location").value;
+      const stipend = document.getElementById("stipend").value;
+      const duration = document.getElementById("duration").value;
+      const description = document.getElementById("description").value;
+      const token = localStorage.getItem("employerToken");
+
+      if (!token) {
+        alert("❌ Unauthorized: Please log in first.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/employers/internship", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title, location, stipend, duration, description }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("✅ Internship posted successfully!");
+          document.getElementById("internshipForm").reset();
+          loadActiveJobs(); // refresh job list instantly
+        } else {
+          alert(`❌ Failed: ${data.message || "Server error"}`);
+        }
+      } catch (err) {
+        console.error("Error posting internship:", err);
+        alert("❌ Server error while posting internship");
+      }
+    });
+
+    // 🔹 Load jobs on page load
+    loadActiveJobs();
+  </script>
+</body>
+</html>
+
+
+

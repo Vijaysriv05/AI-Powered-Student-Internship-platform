@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Professional Resume Builder | AI-Intern</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+body { font-family: 'Inter', sans-serif; margin: 0; background: #f4f7fb; color: #333; }
+/* Header & Navigation */
+header {
+  background: linear-gradient(90deg,#2b7fbf,#4aa0ff);
+  padding: 15px 40px; color: white; display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+header h2 { margin: 0; font-weight: 700; font-size: 22px; cursor: pointer; transition: color 0.3s; }
+header h2:hover { color: #ffdd57; }
+nav { display: flex; gap: 20px; }
+nav a { color: white; text-decoration: none; font-weight: 600; padding: 6px 10px; border-radius: 6px; transition: all 0.2s ease; }
+nav a:hover, nav a.active { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, #2b7fbf, #4aa0ff);
+  padding: 60px 30px; border-radius: 16px; color: #fff; text-align: center; margin: 20px;
+}
+.hero h2 { font-size: 36px; margin-bottom: 15px; }
+.hero p { font-size: 18px; line-height: 1.6; max-width: 700px; margin: auto; }
+
+/* Main & Form */
+main {
+  max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; flex-wrap: wrap; gap: 40px; justify-content: center;
+}
+.form-card {
+  background: #fff; padding: 40px; border-radius: 16px; box-shadow:0 15px 35px rgba(0,0,0,0.1);
+  flex:1; min-width:320px; max-width:500px; transition:0.3s;
+}
+.form-card:hover { transform: translateY(-5px); box-shadow:0 25px 50px rgba(0,0,0,0.15);}
+.form-group { position: relative; margin-bottom: 25px; }
+.form-group input, .form-group textarea {
+  width:100%; padding:16px 12px; border:1px solid #ccc; border-radius:12px; font-size:15px;
+  background: transparent; outline:none; transition:0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.form-group label {
+  position:absolute; left:14px; top:50%; transform:translateY(-50%);
+  color:#aaa; pointer-events:none; transition:0.3s;
+}
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label,
+.form-group textarea:focus + label,
+.form-group textarea:not(:placeholder-shown) + label {
+  top:-10px; font-size:12px; color:#2b7fbf; background:#fff; padding:0 5px;
+}
+button {
+  background:#2b7fbf; color:#fff; padding:16px 30px; border:none; border-radius:12px;
+  font-size:16px; cursor:pointer; transition:0.3s; margin-top:10px;
+}
+button:hover { background:#1f639c; }
+.btn-back { display:inline-block; margin-top:20px; color:#2b7fbf; text-decoration:none; font-weight:600; }
+</style>
+</head>
+<body>
+
+<header>
+  <h2>AI-Intern Resume Builder</h2>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="resume-builder.html" class="active">Build Resume</a>
+    <a href="resume-analyser.html">Analyse Resume</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>Build Your Professional Resume</h2>
+  <p>AI-powered resume builder to craft resumes quickly and effectively for internships and entry-level jobs.</p>
+</section>
+
+<main>
+  <section class="form-card">
+    <form id="resumeForm">
+      <div class="form-group"><input type="text" id="name" placeholder=" " required><label>Full Name</label></div>
+      <div class="form-group"><input type="email" id="email" placeholder=" " required><label>Email Address</label></div>
+      <div class="form-group"><input type="text" id="phone" placeholder=" "><label>Phone Number</label></div>
+      <div class="form-group"><input type="text" id="linkedin" placeholder=" "><label>LinkedIn / Portfolio</label></div>
+      <div class="form-group"><textarea id="summary" placeholder=" "></textarea><label>Professional Summary</label></div>
+      <div class="form-group"><textarea id="education" placeholder=" "></textarea><label>Education</label></div>
+      <div class="form-group"><textarea id="experience" placeholder=" "></textarea><label>Work Experience / Internships</label></div>
+      <div class="form-group"><textarea id="projects" placeholder=" "></textarea><label>Projects</label></div>
+      <div class="form-group"><textarea id="skills" placeholder=" "></textarea><label>Skills (comma separated)</label></div>
+      <div class="form-group"><textarea id="achievements" placeholder=" "></textarea><label>Achievements / Awards</label></div>
+      <div class="form-group"><textarea id="certifications" placeholder=" "></textarea><label>Certifications</label></div>
+      <div class="form-group"><textarea id="languages" placeholder=" "></textarea><label>Languages</label></div>
+      <div class="form-group"><textarea id="hobbies" placeholder=" "></textarea><label>Hobbies / Interests</label></div>
+      <div class="form-group"><textarea id="references" placeholder=" "></textarea><label>References</label></div>
+      <button type="submit">Generate Resume</button>
+    </form>
+    <a href="index.html" class="btn-back">← Back to Home</a>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const { jsPDF } = window.jspdf;
+
+document.getElementById("resumeForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const doc = new jsPDF("p","pt","a4");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const leftX = 40, rightX = 250;
+  let leftY = 140, rightY = 140;
+  const lineHeight = 16, sectionSpacing = 14;
+
+  const name = document.getElementById("name").value || "Your Name";
+  const email = document.getElementById("email").value || "your@email.com";
+  const phone = document.getElementById("phone").value || "123-456-7890";
+  const linkedin = document.getElementById("linkedin").value;
+  const summary = document.getElementById("summary").value;
+  const education = document.getElementById("education").value;
+  const experience = document.getElementById("experience").value;
+  const projects = document.getElementById("projects").value;
+  const skills = document.getElementById("skills").value;
+  const achievements = document.getElementById("achievements").value;
+  const certifications = document.getElementById("certifications").value;
+  const languages = document.getElementById("languages").value;
+  const hobbies = document.getElementById("hobbies").value;
+  const references = document.getElementById("references").value;
+
+  // Header
+  doc.setFont("helvetica","bold"); doc.setFontSize(22); doc.text(name,pageWidth/2,60,{align:"center"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(12);
+  let contactText = email + " | " + phone;
+  if(linkedin) contactText += " | " + linkedin;
+  doc.text(contactText,pageWidth/2,80,{align:"center"});
+
+  // Vertical divider
+  doc.setDrawColor(180); doc.setLineWidth(1); doc.line(220,100,220,pageHeight-40);
+
+  function addSection(x,y,title,text,isList=false){
+    if(!text.trim()) return y;
+    doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor("#2b7fbf");
+    doc.text(title,x,y); y+=lineHeight;
+    doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor("#000");
+    if(isList){
+      text.split(",").forEach(item=>{
+        if(item.trim()!==""){
+          if(y>pageHeight-40){ doc.addPage(); y=60; }
+          doc.text("• "+item.trim(), x+10, y); y+=lineHeight;
+        }
+      });
+    } else {
+      const lines = doc.splitTextToSize(text,pageWidth-x-40);
+      lines.forEach(line=>{
+        if(y>pageHeight-40){ doc.addPage(); y=60; }
+        doc.text(line,x,y,{align:"justify"}); y+=lineHeight;
+      });
+    }
+    return y+sectionSpacing;
+  }
+
+  // Left Column
+  leftY = addSection(leftX,leftY,"Skills",skills,true);
+  leftY = addSection(leftX,leftY,"Achievements / Awards",achievements);
+  leftY = addSection(leftX,leftY,"Certifications",certifications);
+  leftY = addSection(leftX,leftY,"Languages",languages);
+  leftY = addSection(leftX,leftY,"Hobbies / Interests",hobbies);
+  leftY = addSection(leftX,leftY,"References",references);
+
+  // Right Column
+  rightY = addSection(rightX,rightY,"Professional Summary",summary);
+  rightY = addSection(rightX,rightY,"Education",education);
+  rightY = addSection(rightX,rightY,"Work Experience / Internships",experience);
+  rightY = addSection(rightX,rightY,"Projects",projects);
+
+  doc.save(name.replace(/\s+/g,"_")+"_Resume.pdf");
+});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

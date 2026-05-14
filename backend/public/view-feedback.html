@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Feedback | AI-Intern</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .feedback-container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 950px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #2563eb;
+      text-align: center;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0 20px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .filters input, .filters select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .feedback-item {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .feedback-item h3 {
+      margin: 0;
+      color: #9333ea;
+    }
+    .feedback-item p {
+      margin: 5px 0;
+      color: #444;
+    }
+    .meta {
+      font-size: 13px;
+      color: #666;
+    }
+    .no-feedback {
+      text-align: center;
+      font-size: 16px;
+      color: #999;
+      margin-top: 20px;
+    }
+    .btn-back {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 10px 15px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+    }
+    .btn-back:hover { background: #1d4ed8; }
+  </style>
+</head>
+<body>
+  <div class="feedback-container">
+    <h2>📋 All User Feedbacks</h2>
+
+    <button class="btn-back" onclick="history.back()">← Go Back</button>
+
+    <!-- Search + Filter + Sort -->
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="🔍 Search by name" oninput="loadFeedback()">
+      <select id="roleFilter" onchange="loadFeedback()">
+        <option value="">👤 All Roles</option>
+        <option value="Student">Student</option>
+        <option value="Institution">Institution</option>
+        <option value="Employer">Employer</option>
+      </select>
+      <select id="ratingFilter" onchange="loadFeedback()">
+        <option value="">⭐ Filter by Rating</option>
+        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+        <option value="4">⭐⭐⭐⭐ Good</option>
+        <option value="3">⭐⭐⭐ Average</option>
+        <option value="2">⭐⭐ Poor</option>
+        <option value="1">⭐ Very Bad</option>
+      </select>
+    </div>
+
+    <!-- Feedback List -->
+    <div id="feedbackList"></div>
+  </div>
+
+  <script>
+    window.onload = loadFeedback;
+
+    async function loadFeedback() {
+      const role = document.getElementById("roleFilter").value;
+      const rating = document.getElementById("ratingFilter").value;
+      const search = document.getElementById("searchInput").value.toLowerCase();
+
+      try {
+        let url = `/api/feedback?role=${role}&rating=${rating}`;
+        const res = await fetch(url);
+        let feedbacks = await res.json();
+        
+        let container = document.getElementById("feedbackList");
+        container.innerHTML = "";
+
+        if (search) {
+          feedbacks = feedbacks.filter(fb => fb.name.toLowerCase().includes(search));
+        }
+
+        if (!feedbacks || feedbacks.length === 0) {
+          container.innerHTML = "<p class='no-feedback'>No matching feedback found.</p>";
+          return;
+        }
+
+        feedbacks.forEach(fb => {
+          let div = document.createElement("div");
+          div.classList.add("feedback-item");
+          div.innerHTML = `
+            <h3>${fb.name} <span class="meta">(${fb.role})</span></h3>
+            <p><strong>Rating:</strong> ${"⭐".repeat(fb.rating)}</p>
+            <p>${fb.message}</p>
+            <p class="meta">Submitted on: ${new Date(fb.date).toLocaleString()}</p>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById("feedbackList").innerHTML = "<p class='no-feedback'>Error loading feedbacks. Please try again.</p>";
+      }
+    }
+
+  </script>
+</body>
+</html>

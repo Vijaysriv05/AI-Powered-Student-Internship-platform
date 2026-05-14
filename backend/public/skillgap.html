@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skill Gap Analysis</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f6fa;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #0066cc;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+    main {
+      max-width: 750px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    input[type="file"], input[type="text"] {
+      width: 100%;
+      margin: 12px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 18px;
+      cursor: pointer;
+      margin: 8px 5px;
+    }
+    button:hover {
+      background: #004c99;
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    .skills, .links, .recommendations {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      background: #f1f4f9;
+      margin-bottom: 6px;
+      padding: 8px;
+      border-radius: 5px;
+    }
+      #quickSearchResults li {
+  background: #e9f2ff;
+  border-left: 4px solid #0066cc;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+  </style>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>-->
+</head>
+
+<body>
+  <header>
+    <h1>AI-Powered Skill Gap Analysis</h1>
+  </header>
+
+  <main>
+    <form id="resumeForm" autocomplete="off">
+      <h2>Upload Your Resume</h2>
+      <input type="file" id="resume" name="resume" accept=".pdf,.docx" required />
+      <input type="text" id="interestedInternship" placeholder="Enter your interested internships (comma separated)" />
+      <button type="submit">Analyze Resume</button>
+    </form>
+
+<!-- Quick Internship Search -->
+<div class="section">
+  <h2>Quick Internship Search</h2>
+  <input 
+    type="text" 
+    id="quickSearch" 
+    placeholder="Type a skill (e.g., Python) and press Enter" 
+  />
+  <ul id="quickSearchResults" class="recommendations"></ul>
+</div>
+
+
+    <p id="status"></p>
+
+    <div id="results" style="display: none;">
+      <div id="pdfContent">
+        <h2>📊 Skill Gap Analysis Report</h2>
+
+        <div class="section">
+          <h3>✅ Found Skills</h3>
+          <ul id="foundSkills" class="skills"></ul>
+        </div>
+
+        <div class="section">
+          <h3>⚠ Missing Skills</h3>
+          <ul id="missingSkills" class="skills"></ul>
+        </div>
+
+        <div class="section">
+          <h3>📘 Learning Links</h3>
+          <ul id="learningLinks" class="links"></ul>
+        </div>
+
+        <div class="section">
+          <h3>💼 Internship Recommendations</h3>
+          <ul id="recommendations" class="recommendations"></ul>
+        </div>
+
+        <div class="section">
+          <h3>⭐ Interested Internships</h3>
+          <ul id="interestedList"></ul>
+        </div>
+      </div>
+
+      <button id="downloadPDF">📄 Download PDF</button>
+      <button id="backBtn">← Back</button>
+    </div>
+    <input type="file" id="resumeInput" accept=".pdf,.docx" />
+<button onclick="analyzeResume()">Analyze My Resume</button>
+
+<div id="result"></div>
+
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("resumeForm");
+      const statusEl = document.getElementById("status");
+      const resultsEl = document.getElementById("results");
+      const backBtn = document.getElementById("backBtn");
+      const downloadBtn = document.getElementById("downloadPDF");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        statusEl.textContent = "⏳ Uploading and analyzing resume...";
+        resultsEl.style.display = "none";
+
+        const file = document.getElementById("resume").files[0];
+        const interested = document.getElementById("interestedInternship").value.trim();
+
+        if (!file) {
+          statusEl.textContent = "⚠ Please select a resume file first.";
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("resume", file);
+
+        try {
+          const res = await fetch("http://localhost:5000/api/skillgap/analyzeResume", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || "Server error");
+          }
+
+          const data = await res.json();
+          data.interestedInternships = interested
+            ? interested.split(",").map(s => s.trim())
+            : [];
+
+          statusEl.textContent = "✅ Resume analyzed successfully!";
+          displayResults(data);
+
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = `❌ Error: ${err.message}`;
+        }
+      });
+
+      function displayResults(data) {
+        document.getElementById("foundSkills").innerHTML = data.foundSkills.length
+          ? data.foundSkills.map(s => `<li>${s}</li>`).join("")
+          : "<li>No skills found.</li>";
+
+        document.getElementById("missingSkills").innerHTML = data.missingSkills.length
+          ? data.missingSkills.map(s => `<li>${s}</li>`).join("")
+          : "<li>All skills covered!</li>";
+
+        document.getElementById("learningLinks").innerHTML = data.learningLinks.length
+          ? data.learningLinks.map(l => `<li><a href='${l.resource}' target='_blank'>${l.skill}</a></li>`).join("")
+          : "<li>No learning links available.</li>";
+
+        document.getElementById("recommendations").innerHTML = data.recommendations.length
+          ? data.recommendations.map(r => `<li><a href='${r.link}' target='_blank'>${r.title} @ ${r.company}</a></li>`).join("")
+          : "<li>No recommendations available.</li>";
+
+        document.getElementById("interestedList").innerHTML = data.interestedInternships.length
+          ? data.interestedInternships.map(i => `<li>${i}</li>`).join("")
+          : "<li>No interested internships entered.</li>";
+
+        form.style.display = "none";
+        resultsEl.style.display = "block";
+      }
+
+      backBtn.addEventListener("click", () => {
+        form.style.display = "block";
+        resultsEl.style.display = "none";
+        statusEl.textContent = "";
+        form.reset();
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        const pdfContent = document.getElementById("pdfContent");
+        const options = {
+          margin: 0.5,
+          filename: "SkillGap_Analysis_Report.pdf",
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+        };
+        html2pdf().set(options).from(pdfContent).save();
+      });
+
+      // Prevent accidental page reload
+      window.addEventListener("beforeunload", (e) => {
+        e.preventDefault();
+        e.returnValue = '';
+      });
+    });
+
+    
+async function analyzeResume() {
+  const fileInput = document.getElementById("resumeInput");
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Please upload your resume first!");
+    return;
+  }
+
+  // 1️⃣ Send the resume to backend to extract text
+  const formData = new FormData();
+  formData.append("resume", file);
+
+  const res = await fetch("/api/resume/analyze", {
+    method: "POST",
+    body: formData
+  });
+
+  const { text } = await res.json(); // backend returns extracted resume text
+  console.log("Extracted Resume Text:", text);
+
+  // 2️⃣ Fetch all internships
+const internshipsRes = await fetch("http://localhost:5000/api/internships/all");
+
+  const internships = await internshipsRes.json();
+
+  // 3️⃣ Match based on skills or keywords
+  const matched = findMatchingInternships(text, internships);
+
+  // 4️⃣ Display result
+  displayMatchedInternships(matched);
+}
+
+function findMatchingInternships(resumeText, internships) {
+  const resumeLower = resumeText.toLowerCase();
+
+  return internships.filter(i => {
+
+    // Convert skills to array if it is string
+    let internshipSkills = [];
+
+// If backend used skillsRequired
+if (Array.isArray(i.skillsRequired)) {
+  internshipSkills = i.skillsRequired;
+} else if (typeof i.skillsRequired === "string") {
+  internshipSkills = i.skillsRequired.split(",").map(s => s.trim());
+}
+
+// If backend used skills
+if (Array.isArray(i.skills)) {
+  internshipSkills = internshipSkills.concat(i.skills);
+} else if (typeof i.skills === "string") {
+  internshipSkills = internshipSkills.concat(i.skills.split(",").map(s => s.trim()));
+}
+
+
+    // Match skills with resume text
+    return internshipSkills.some(skill =>
+      resumeLower.includes(skill.toLowerCase())
+    );
+  });
+}
+
+function displayMatchedInternships(matches) {
+  const container = document.getElementById("result");
+  if (matches.length === 0) {
+    container.innerHTML = "<p>No matching internships found 😢</p>";
+    return;
+  }
+
+ container.innerHTML = matches.map(i => `
+  <div style="border:1px solid #ccc;padding:10px;margin:10px;border-radius:8px;">
+    <h3>${i.title}</h3>
+    <p>${i.description}</p>
+    <p><b>Skills Required:</b> ${i.skills}</p>
+    <p><b>Location:</b> ${i.location}</p>
+    <p><b>Stipend:</b> ${i.stipend}</p>
+    <p><b>Company:</b> ${i.postedBy?.companyName || "Anonymous"}</p>
+    <p><b>Duration:</b> ${i.duration}</p>
+  </div>
+`).join("");
+
+}
+document.getElementById("quickSearch").addEventListener("keyup", async (e) => {
+  if (e.key === "Enter") {
+    const keyword = e.target.value.trim();
+    if (!keyword) return;
+    quickInternshipSearch(keyword);
+  }
+});
+
+async function quickInternshipSearch(keyword) {
+  const list = document.getElementById("quickSearchResults");
+  list.innerHTML = "<li>Searching...</li>";
+
+  try {
+    // Fetch ALL internships
+    const res = await fetch("http://localhost:5000/api/internships/all");
+    const internships = await res.json();
+    console.log("API DATA:", internships);
+
+    const lower = keyword.toLowerCase();
+
+    const results = internships.filter(i => {
+      
+
+   //console.log("TITLE:", i.title, " | RAW SKILLS:", i.skills, " | REQUIRED:", i.skillsRequired);
+    let skillsArray = [];
+
+      // --- SAFE PARSING START ---
+      // Case 1: skillsRequired exists
+      if (Array.isArray(i.skillsRequired)) {
+        skillsArray = skillsArray.concat(i.skillsRequired);
+      } else if (typeof i.skillsRequired === "string") {
+        skillsArray = skillsArray.concat(
+          i.skillsRequired.split(",").map(s => s.trim())
+        );
+      }
+
+      // Case 2: API saved skills under "skills"
+if (Array.isArray(i.skills)) {
+  // skills = ["HTML, CSS, JavaScript"]  -> must split
+  i.skills.forEach(item => {
+    if (typeof item === "string") {
+      skillsArray = skillsArray.concat(
+        item.split(",").map(s => s.trim())
+      );
+    }
+  });
+} else if (typeof i.skills === "string") {
+  skillsArray = skillsArray.concat(
+    i.skills.split(",").map(s => s.trim())
+  );
+}
+
+
+      // Remove empty values (safety)
+      skillsArray = skillsArray.filter(s => s && s.length > 0);
+
+      // If still empty → skip internship
+      if (skillsArray.length === 0) return false;
+      // --- SAFE PARSING END ---
+
+      // Match skills
+      return skillsArray.some(skill =>
+        skill.toLowerCase().includes(lower)
+      );
+    });
+
+    if (results.length === 0) {
+      list.innerHTML = "<li>No internships found for this skill.</li>";
+      return;
+    }
+
+    // Show results
+    list.innerHTML = results
+      .map(i => `
+        <li>
+          <strong>${i.title}</strong> — ${i.employerId?.companyName || "Unknown Company"}
+          <br><b>Skills:</b> ${
+            Array.isArray(i.skillsRequired)
+              ? i.skillsRequired.join(", ")
+              : i.skillsRequired || "Not Provided"
+          }
+          <br><b>Location:</b> ${i.location}
+          <br><b>Duration:</b> ${i.duration}
+        </li>
+      `)
+      .join("");
+
+  } catch (err) {
+    console.error("Quick Search Error:", err);
+    list.innerHTML = "<li>Error while searching.</li>";
+  }
+}
+
+
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Skill Gap Analysis — AI-Intern</title>
+
+  <!-- Simple modern styles (card UI) 
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --primary:#2563eb;
+      --accent:#9333ea;
+      --muted:#6b7280;
+      --card-shadow: 0 8px 30px rgba(37,99,235,0.06);
+      --radius:12px;
+      --max-width:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;background:var(--bg);color:#0f172a}
+    header{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;padding:28px 20px;text-align:center}
+    header h1{margin:0;font-size:20px;letter-spacing:0.2px}
+    main{max-width:var(--max-width);margin:28px auto;padding:20px;}
+    .grid{display:grid;grid-template-columns: 420px 1fr;gap:20px}
+    .panel{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--card-shadow)}
+    .form-row{display:flex;gap:10px;align-items:center}
+    label{font-weight:600;color:var(--muted);font-size:14px}
+    input[type=file],input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc;background:#fafcff}
+    button{background:var(--primary);border:0;color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    button.secondary{background:#fff;color:var(--primary);border:1px solid #e6eefc}
+    .muted{color:var(--muted);font-size:13px}
+    #status{margin-top:8px;font-weight:700}
+    .small{font-size:13px;color:var(--muted)}
+    /* Results layout */
+    .results-grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:14px}
+    .card-wrap{display:grid;gap:12px}
+    .internship-card{
+      background:linear-gradient(180deg,#fff,#fbfbff);
+      border-radius:10px;padding:14px;border:1px solid rgba(16,24,40,0.04);
+      display:flex;flex-direction:column;gap:8px;box-shadow:0 6px 18px rgba(16,24,40,0.04)
+    }
+    .internship-card h3{margin:0;font-size:18px;color:#0f172a}
+    .meta-row{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+    .skills-pill{display:inline-block;background:#eef2ff;color:#3730a3;padding:6px 8px;border-radius:999px;font-weight:600;font-size:12px;margin-right:6px;margin-top:6px}
+    .apply-row{display:flex;gap:10px;align-items:center;margin-top:10px}
+    .apply-btn{background:linear-gradient(90deg,var(--primary),var(--accent));padding:8px 12px;border-radius:10px;color:#fff;border:0;font-weight:700;cursor:pointer}
+    .ghost{background:#fff;border:1px solid #e6eefc;color:var(--primary);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .stat-box{background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:var(--card-shadow)}
+    .stat-box h2{margin:0;color:var(--primary)}
+    .list-plain{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+    .list-plain li{background:#f8fafc;padding:8px;border-radius:8px;font-size:14px}
+    /* responsive */
+    @media(max-width:960px){.grid{grid-template-columns:1fr}.results-grid{grid-template-columns:1fr}.card-wrap{order:2}}
+  </style>
+
+  <!-- html2pdf for PDF download 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>AI-Intern — Skill Gap Analysis & Internship Matching</h1>
+  </header>
+
+  <main>
+    <div class="grid">
+      <!-- Left: Upload + Summary 
+      <section class="panel">
+        <h2 style="margin-top:0">Upload resume & choose interest</h2>
+        <form id="resumeForm" autocomplete="off">
+          <label class="small">Resume (PDF / DOCX)</label>
+          <input id="resumeFile" type="file" accept=".pdf,.doc,.docx" required />
+
+          <label class="small" style="margin-top:10px">Interested internships (comma separated)</label>
+          <input id="interestedInternships" type="text" placeholder="e.g., AI Intern, Data Science Intern" />
+
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <button id="analyzeBtn" type="submit">Analyze Resume</button>
+            <button id="clearBtn" type="button" class="secondary">Clear</button>
+          </div>
+        </form>
+
+        <p id="status" class="small"></p>
+
+        <div style="margin-top:16px">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+            <div class="stat-box"><h2 id="foundCount">0</h2><div class="small">Found Skills</div></div>
+            <div class="stat-box"><h2 id="missingCount">0</h2><div class="small">Missing Skills</div></div>
+          </div>
+
+          <div style="margin-top:12px">
+            <h3 style="margin:0 0 8px 0">Learning Links</h3>
+            <ul id="learningLinks" class="list-plain"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Results + Matches 
+      <section>
+        <div id="resultsPanel" class="panel" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2 style="margin:0">Skill Gap Analysis Report</h2>
+            <div style="display:flex;gap:8px">
+              <button id="downloadPDF" class="ghost">Download PDF</button>
+              <button id="backBtn" class="ghost">Back</button>
+            </div>
+          </div>
+
+          <div class="results-grid" style="margin-top:14px">
+            <div>
+              <div style="margin-bottom:12px">
+                <h3 style="margin:8px 0">✅ Found Skills</h3>
+                <ul id="foundSkills" class="list-plain"></ul>
+              </div>
+
+              <div style="margin-bottom:12px">
+                <h3 style="margin:8px 0">⚠ Missing Skills</h3>
+                <ul id="missingSkills" class="list-plain"></ul>
+              </div>
+
+              <div style="margin-bottom:12px">
+                <h3 style="margin:8px 0">💼 Internship Recommendations</h3>
+                <div id="recommendationList" class="card-wrap"></div>
+              </div>
+            </div>
+
+            <aside style="display:flex;flex-direction:column;gap:12px">
+              <div class="panel" style="padding:12px">
+                <h4 style="margin:6px 0">Interested</h4>
+                <ul id="interestedList" class="list-plain"></ul>
+              </div>
+
+              <div class="panel" style="padding:12px">
+                <h4 style="margin:6px 0">Top Matches</h4>
+                <div id="topMatches"></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <!-- Inline quick match area (visible before analyzing) 
+        <div id="quickMatchPanel" class="panel" style="text-align:center">
+          <h3 style="margin:4px 0 8px 0">Quick Internship Search</h3>
+          <input id="quickSkill" type="text" placeholder="Type a skill (e.g., Python) and press Enter" />
+          <div id="quickResults" style="margin-top:12px"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Templates & Script 
+  <script>
+    // ----------------- CONFIG -----------------
+    const SKILL_ANALYZE_URL = "http://localhost:5000/api/skillgap/analyzeResume"; // existing analyze endpoint
+    const INTERNSHIPS_URL = "http://localhost:5000/api/internships";              // confirmed endpoint
+
+    // ----------------- UTILITIES -----------------
+    function toArraySkills(raw) {
+      // Convert various shapes into string array
+      if (!raw) return [];
+      if (Array.isArray(raw)) return raw.map(s => String(s).trim()).filter(Boolean);
+      if (typeof raw === "string") {
+        // Accept both "Java, Python" and "Java | Python" (split by commas or pipes)
+        return raw.split(/[,|;]/).map(s => s.trim()).filter(Boolean);
+      }
+      return [];
+    }
+
+    function createInternshipCard(job) {
+      const skillsArr = toArraySkills(job.skills);
+      const company = job.postedBy?.companyName || job.employerId?.companyName || job.company || "Anonymous";
+      const id = job._id || job.id || "";
+      return `
+      <div class="internship-card" data-id="${id}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3>${escapeHtml(job.title || "Untitled")}</h3>
+          <div class="small">${escapeHtml(company)}</div>
+        </div>
+
+        <div class="meta-row small">
+          <div>${escapeHtml(job.location || "Location not specified")}</div>
+          <div>•</div>
+          <div>${escapeHtml(job.duration || "Duration not specified")}</div>
+          <div>•</div>
+          <div>${escapeHtml(job.stipend || "Stipend not specified")}</div>
+        </div>
+
+        <p style="margin:8px 0 6px 0;color:var(--muted)">${escapeHtml(job.description || "")}</p>
+
+        <div>
+          ${skillsArr.map(s=>`<span class="skills-pill">${escapeHtml(s)}</span>`).join("")}
+        </div>
+
+        <div class="apply-row">
+          <button class="apply-btn" onclick="onApply('${id}')">Apply Now</button>
+          <button class="ghost" onclick="viewDetails('${id}')">View</button>
+        </div>
+      </div>
+      `;
+    }
+
+    function escapeHtml(str){
+      if(!str) return "";
+      return String(str).replace(/[&<>"']/g, function (m) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m];
+      });
+    }
+
+    // ----------------- CORE LOGIC -----------------
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("resumeForm");
+      const statusEl = document.getElementById("status");
+      const resultsPanel = document.getElementById("resultsPanel");
+      const quickSkill = document.getElementById("quickSkill");
+      const quickResults = document.getElementById("quickResults");
+      const downloadBtn = document.getElementById("downloadPDF");
+      const backBtn = document.getElementById("backBtn");
+      const clearBtn = document.getElementById("clearBtn");
+
+      // Preload internships for quick search and recommendations
+      let allInternships = [];
+      (async function preloadInternships(){
+        try {
+          const r = await fetch(INTERNSHIPS_URL);
+          if(!r.ok) throw new Error("Failed to fetch internships");
+          allInternships = await r.json();
+        } catch (e) {
+          console.error("Could not preload internships:", e);
+        }
+      })();
+
+      // Submit resume for analysis
+      form.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        statusEl.textContent = "";
+        const file = document.getElementById("resumeFile").files[0];
+        if (!file) { statusEl.textContent = "⚠ Please upload a resume file."; return; }
+
+        const interestedRaw = document.getElementById("interestedInternships").value || "";
+        const interestedList = interestedRaw.split(",").map(s => s.trim()).filter(Boolean);
+
+        const fd = new FormData();
+        fd.append("resume", file);
+
+        try {
+          statusEl.textContent = "⏳ Uploading & analyzing resume...";
+          const res = await fetch(SKILL_ANALYZE_URL, { method: "POST", body: fd });
+          if (!res.ok) {
+            const err = await res.json().catch(()=>({error:res.statusText}));
+            throw new Error(err.error || err.message || "Server error");
+          }
+          const data = await res.json();
+
+          // Normalize fields we expect
+          data.foundSkills = data.foundSkills || [];
+          data.missingSkills = data.missingSkills || [];
+          data.learningLinks = data.learningLinks || [];
+          data.recommendations = data.recommendations || [];
+
+          // Attach user's interested internships for display
+          data.interestedInternships = interestedList;
+
+          // Match internships from backend using resume text
+          const resumeText = (data.rawText || data.extractedText || (data.foundSkills||[]).join(" ")) + " " + interestedList.join(" ");
+          const matched = findMatchingInternships(resumeText, allInternships);
+
+          // Put matched internships into recommendations (prefer backend recommendations first)
+          data.recommendations = mergeRecommendations(data.recommendations, matched);
+
+          // Update UI
+          renderReport(data);
+          statusEl.textContent = "✅ Analysis complete";
+          resultsPanel.style.display = "block";
+          // scroll to results
+          resultsPanel.scrollIntoView({behavior:"smooth"});
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = `❌ ${err.message}`;
+        }
+      });
+
+      clearBtn.addEventListener("click", ()=>{
+        form.reset();
+        document.getElementById("status").textContent = "";
+      });
+
+      // Quick skill search
+      quickSkill.addEventListener("keypress", async (e)=>{
+        if(e.key === "Enter"){
+          e.preventDefault();
+          const q = quickSkill.value.trim();
+          if(!q) return;
+          quickResults.innerHTML = "<p class='small'>Searching...</p>";
+          try {
+            const r = await fetch(INTERNSHIPS_URL);
+            const list = await r.json();
+            const filtered = list.filter(job => {
+              const arr = toArraySkills(job.skills);
+              return arr.some(s => s.toLowerCase().includes(q.toLowerCase())) || (job.title||"").toLowerCase().includes(q.toLowerCase());
+            });
+            if(filtered.length === 0) quickResults.innerHTML = "<p class='small'>No quick matches</p>";
+            else quickResults.innerHTML = filtered.map(createInternshipCard).join("");
+          } catch (err){
+            quickResults.innerHTML = "<p class='small'>Search failed</p>";
+            console.error(err);
+          }
+        }
+      });
+
+      // Download PDF & Back actions
+      downloadBtn.addEventListener("click", () => {
+        const pdfContent = document.getElementById("resultsPanel");
+        const opt = { margin:0.4, filename: 'SkillGap_Report.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'in',format:'a4',orientation:'portrait'} };
+        html2pdf().set(opt).from(pdfContent).save();
+      });
+
+      backBtn.addEventListener("click", () => {
+        resultsPanel.style.display = "none";
+        document.getElementById("resumeForm").style.display = "block";
+        window.scrollTo({top:0,behavior:'smooth'});
+      });
+    });
+
+    // ----------------- Matching Helpers -----------------
+    function findMatchingInternships(resumeText, internships){
+      const resumeLower = (resumeText||"").toLowerCase();
+      if(!Array.isArray(internships)) return [];
+      return internships.filter(i=>{
+        const skillsArr = toArraySkills(i.skills); // handles "Java, Python" strings
+        // if internship has no skills, consider it a match if title/description contain a found keyword
+        if(!skillsArr.length){
+          const text = ((i.title||"")+" "+(i.description||"")).toLowerCase();
+          // if resume contains any word in job title/desc, match it
+          return resumeLower.split(/\s+/).some(tok => tok && text.includes(tok));
+        }
+        return skillsArr.some(skill => resumeLower.includes(skill.toLowerCase()));
+      });
+    }
+
+    function mergeRecommendations(backendRecs, matchedInternships){
+      // backendRecs: [{title, company, link}] ; matchedInternships: full job objects from DB
+      const output = [];
+      const seen = new Set();
+
+      // prefer backend recs first (if they contain link/title)
+      (backendRecs||[]).forEach(r=>{
+        const key = (r.link||r.title||"").toLowerCase();
+        if(!seen.has(key)){ seen.add(key); output.push(r); }
+      });
+
+      // then add matched internships (convert into rec-like objects)
+      (matchedInternships||[]).forEach(j=>{
+        const key = (j._id || j.title || "").toString().toLowerCase();
+        if(!seen.has(key)){
+          seen.add(key);
+          output.push({
+            title: j.title,
+            company: j.postedBy?.companyName || j.employerId?.companyName || j.company || "Unknown",
+            link: `/internship.html?id=${j._id || ""}`,
+            _sourceJob: j
+          });
+        }
+      });
+      return output;
+    }
+
+    // ----------------- Render UI -----------------
+    function renderReport(data){
+      // Found / Missing counts and lists
+      document.getElementById("foundCount").textContent = (data.foundSkills||[]).length;
+      document.getElementById("missingCount").textContent = (data.missingSkills||[]).length;
+
+      document.getElementById("foundSkills").innerHTML = (data.foundSkills||[]).length
+        ? (data.foundSkills||[]).map(s => `<li>${escapeHtml(s)}</li>`).join("")
+        : "<li>No skills detected</li>";
+
+      document.getElementById("missingSkills").innerHTML = (data.missingSkills||[]).length
+        ? (data.missingSkills||[]).map(s => `<li>${escapeHtml(s)}</li>`).join("")
+        : "<li>All core skills covered</li>";
+
+      document.getElementById("learningLinks").innerHTML = (data.learningLinks||[]).length
+        ? (data.learningLinks||[]).map(l => `<li><a href="${escapeHtml(l.resource)}" target="_blank">${escapeHtml(l.skill||l.resource)}</a></li>`).join("")
+        : "<li>No learning links</li>";
+
+      // Interested internships
+      document.getElementById("interestedList").innerHTML = (data.interestedInternships||[]).length
+        ? (data.interestedInternships||[]).map(i=>`<li>${escapeHtml(i)}</li>`).join("")
+        : "<li>No interested internships provided</li>";
+
+      // Render recommendations as cards
+      const recContainer = document.getElementById("recommendationList");
+      recContainer.innerHTML = (data.recommendations||[]).length
+        ? (data.recommendations||[]).map(rec => {
+            // if rec._sourceJob exists (we added it), render full job card; else render simple rec card
+            if(rec._sourceJob) return createInternshipCard(rec._sourceJob);
+            // else create a simple recommended card with link
+            return `
+              <div class="internship-card">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <h3>${escapeHtml(rec.title||"Recommendation")}</h3>
+                  <div class="small">${escapeHtml(rec.company||"")}</div>
+                </div>
+                <div class="apply-row" style="margin-top:8px">
+                  <a class="apply-btn" href="${escapeHtml(rec.link||"#")}" target="_blank">View</a>
+                </div>
+              </div>
+            `;
+          }).join("")
+        : "<div class='small'>No recommendations</div>";
+
+      // Top matches: quick list of matched internships (small)
+      const topMatches = (data.recommendations||[]).slice(0,5).map(r=>{
+        const title = escapeHtml(r.title||"");
+        const company = escapeHtml(r.company||"");
+        const link = escapeHtml(r.link||"#");
+        return `<div style="margin-bottom:8px"><a href="${link}" target="_blank">${title} — <span class="small">${company}</span></a></div>`;
+      }).join("");
+      document.getElementById("topMatches").innerHTML = topMatches || "<div class='small'>No top matches</div>";
+    }
+
+    // ----------------- Actions -----------------
+    function onApply(jobId){
+      // Redirect to job application page (customize as needed)
+      if(!jobId) { alert("Job id not available"); return; }
+      window.location.href = `./apply.html?job=${jobId}`;
+    }
+    function viewDetails(jobId){
+      if(!jobId) { alert("Job id not available"); return; }
+      window.location.href = `./internship.html?id=${jobId}`;
+    }
+  </script>
+  
+
+</body>
+</html>-->

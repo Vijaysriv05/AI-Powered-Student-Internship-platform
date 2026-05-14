@@ -1,0 +1,38 @@
+{
+  "apply": {
+    "keywords": ["apply", "application", "how to apply", "how can i apply", "apply for internship", "आवेदन करें", "எப்படி விண்ணப்பிக்கலாம்", "cómo aplicar"],
+    "answers": {
+      "en": "You can apply for internships directly through the Apply button on our platform. Open the internship listing and click Apply — follow the instructions and upload your resume.",
+      "hi": "आप सीधे हमारे प्लेटफ़ॉर्म पर Apply बटन के माध्यम से इंटर्नशिप के लिए आवेदन कर सकते हैं। इंटर्नशिप की लिस्टिंग खोलें और Apply पर क्लिक करें — निर्देशों का पालन करें और अपना रिज्यूमे अपलोड करें।",
+      "ta": "நீங்கள் எங்கள் பிளாட்ஃபாரத்தின் Apply பொத்தானின் மூலம் நேரடியாக இன்டர்ன்ஷிப்பிற்காக விண்ணப்பிக்கலாம். இன்டர்ன்ஷிப் பட்டியலை திறந்து Apply என்பதில் கிளிக் செய்யவும் — hướngும் குறிப்புகளை பின்பற்றவும் மற்றும் உங்கள் ரெசுமேவை பதிவேற்றவும்.",
+      "es": "Puede postularse a pasantías directamente a través del botón Apply en nuestra plataforma. Abra la lista de pasantías y haga clic en Apply — siga las instrucciones y cargue su currículum."
+    }
+  },
+  "stipend": {
+    "keywords": ["stipend", "salary", "pay", "payment", "how much do interns get", "वेतन", "சம்பளம்", "salario"],
+    "answers": {
+      "en": "Most internships offer stipends ranging from ₹5,000–₹20,000 per month depending on skills and the company.",
+      "hi": "अधिकांश इंटर्नशिप ₹5,000–₹20,000 प्रति माह का स्टाइपेंड प्रदान करती हैं, यह कौशल और कंपनी पर निर्भर करता है।",
+      "ta": "பல இன்டர்ன்ஷிப்புகள் திறமைகள் மற்றும் நிறுவனத்தின் அடிப்படையில் மாதம் ₹5,000–₹20,000 வரை மடியில் ஸ்டைபெண்ட் வழங்குகின்றன.",
+      "es": "La mayoría de las pasantías ofrecen estipendios que van de ₹5,000 a ₹20,000 por mes, según las habilidades y la empresa."
+    }
+  },
+  "certificate": {
+    "keywords": ["certificate", "certification", "completion proof", "certificate after internship", "प्रमाणपत्र", "சான்றிதழ்", "certificado"],
+    "answers": {
+      "en": "Yes — once you complete an internship successfully, you’ll receive a certificate from the company/platform.",
+      "hi": "हाँ — सफलतापूर्वक इंटर्नशिप पूरी करने के बाद, आपको कंपनी/प्लेटफ़ॉर्म से प्रमाणपत्र मिलेगा।",
+      "ta": "ஆம் — ஒரு இன்டர்ன்ஷிப் வெற்றிகரமாக முடிந்தவுடன், நிறுவனத்திலிருந்து/பிளாட்ஃபாரத்தின் சான்றிதழ் பெறுவீர்கள்.",
+      "es": "Sí — una vez que complete una pasantía con éxito, recibirá un certificado de la empresa/plataforma."
+    }
+  },
+  "deadline": {
+    "keywords": ["deadline", "last date", "apply before", "closing date", "अंतिम तिथि", "கடைசி தேதி", "fecha límite"],
+    "answers": {
+      "en": "Each internship has its own deadline. Please check the internship listing page for the deadline.",
+      "hi": "प्रत्येक इंटर्नशिप की अपनी अंतिम तिथि होती है। कृपया इंटर्नशिप लिस्टिंग पेज पर अंतिम तिथि देखें।",
+      "ta": "ஒவ்வொரு இன்டர்ன்ஷிப்பிற்கும் தனிப்பட்ட கடைசி தேதி உள்ளது. கடைசி தேதியை பார்க்க இன்டர்ன்ஷிப் பட்டியலை சரிபார்க்கவும்.",
+      "es": "Cada pasantía tiene su propia fecha límite. Por favor, consulte la página de listado de pasantías para la fecha límite."
+    }
+  }
+}

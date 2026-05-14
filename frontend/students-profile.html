@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Profile | AI-Intern</title>
+<style>
+  body { margin:0; font-family:'Segoe UI',sans-serif; background:#f3f4f6; }
+  header { background:linear-gradient(90deg,#2563eb,#9333ea); padding:15px 30px; color:#fff; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { margin:0; font-size:20px; }
+  header a { color:#fff; text-decoration:none; font-weight:bold; transition: color 0.3s, transform 0.3s; }
+  header a:hover { color:#ffeb3b; transform: scale(1.05); }
+
+  main { padding:30px; max-width:900px; margin:auto; display:flex; flex-direction:column; gap:20px; }
+
+  .profile-card { background:#fff; border-radius:12px; padding:25px; box-shadow:0 5px 15px rgba(0,0,0,0.1); display:flex; gap:30px; align-items:flex-start; flex-wrap:wrap; transition: transform 0.3s, box-shadow 0.3s; }
+  .profile-card:hover { transform: translateY(-3px); box-shadow:0 12px 25px rgba(0,0,0,0.15); }
+
+  .profile-left { flex:1; min-width:250px; text-align:center; }
+  .profile-left img { width:140px; height:140px; border-radius:50%; object-fit:cover; margin-bottom:15px; cursor:pointer; transition:0.4s; }
+  .profile-left img:hover { transform: scale(1.08) rotate(-3deg); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+  .profile-left input { display:none; }
+  .profile-left h2 { margin:5px 0; color:#2563eb; transition: color 0.3s; }
+  .profile-left h2:hover { color:#9333ea; }
+  .profile-left p { margin:5px 0; color:#333; }
+
+  .profile-right { flex:2; min-width:300px; }
+  .profile-right h3 { color:#2563eb; margin-bottom:10px; }
+  .profile-details { display:flex; flex-direction:column; gap:15px; }
+  .profile-details label { font-weight:bold; margin-bottom:5px; display:block; }
+  .profile-details input { width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; font-size:14px; transition:0.3s; }
+  .profile-details input:focus { border-color:#9333ea; box-shadow:0 0 8px rgba(147,51,234,0.3); outline:none; }
+
+  .save-btn, .upload-btn, .add-cert-btn, .file-upload-label { margin-top:10px; padding:12px 20px; font-size:16px; font-weight:bold; border:none; border-radius:10px; background:linear-gradient(90deg,#2563eb,#9333ea); color:#fff; cursor:pointer; transition:0.3s, transform 0.3s, box-shadow 0.3s; }
+  .save-btn:hover, .upload-btn:hover, .add-cert-btn:hover, .file-upload-label:hover { transform:translateY(-3px) scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.25); background:linear-gradient(90deg,#9333ea,#ff6fff); }
+
+  .progress-bar { background:#e0e0e0; border-radius:12px; overflow:hidden; height:20px; width:100%; margin-bottom:10px; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#2563eb,#9333ea); text-align:right; color:#fff; padding-right:5px; line-height:20px; font-weight:bold; width:0%; transition: width 1s ease-in-out, background 0.3s; }
+
+  .certificates-section { margin-top:20px; }
+  .certificates-list { margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+  .certificate { background:#f3f4f6; padding:8px 12px; border-radius:8px; font-size:14px; color:#333; display:flex; justify-content:space-between; align-items:center; transition:0.3s; cursor:default; position:relative; }
+  .certificate:hover { background:#e0e0e0; transform:translateX(3px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+
+  .certificate .remove-cert { color:red; font-weight:bold; cursor:pointer; transition: color 0.3s, transform 0.3s; }
+  .certificate .remove-cert:hover { color:#ff0000; transform: scale(1.2); }
+
+  .file-upload-label { display:inline-block; cursor:pointer; transition:0.3s; }
+  .file-upload-label:hover { transform: scale(1.05); box-shadow:0 6px 15px rgba(0,0,0,0.2); background:linear-gradient(90deg,#9333ea,#ff6fff); }
+
+  /* Tooltip preview */
+  .certificate:hover::after { content: attr(data-name); position:absolute; top:-25px; right:0; background:#2563eb; color:#fff; padding:4px 10px; font-size:12px; border-radius:6px; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.2); z-index:10; }
+
+  #resumeName:hover::after { content: attr(data-name); position:absolute; top:-25px; left:0; background:#9333ea; color:#fff; padding:4px 10px; font-size:12px; border-radius:6px; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.2); z-index:10; }
+
+  input[type="file"] { display:none; }
+
+  @media(max-width:900px){ .profile-card{ flex-direction:column; align-items:center; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Student Profile</h1>
+  <a href="students.html">Back to Dashboard</a>
+</header>
+
+<main>
+  <div class="profile-card">
+    <!-- Left Side: Avatar -->
+    <div class="profile-left">
+      <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Student Avatar" title="Click to change">
+      <input type="file" id="avatarUpload" accept="image/*">
+      <h2 id="name">Student Name</h2>
+      <p>🎓 Student</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="profileCompletion">0%</div>
+      </div>
+    </div>
+
+    <!-- Right Side: Profile Details & Certificates -->
+    <div class="profile-right">
+      <div class="profile-details">
+        <div>
+          <label for="studentName">Name</label>
+          <input type="text" id="studentName" placeholder="Enter your name">
+        </div>
+        <div>
+          <label for="studentEmail">Email</label>
+          <input type="email" id="studentEmail" placeholder="Enter your email">
+        </div>
+        <div>
+          <label for="studentUniversity">University</label>
+          <input type="text" id="studentUniversity" placeholder="Enter your university">
+        </div>
+      </div>
+
+      <!-- Resume Upload -->
+      <div class="certificates-section">
+        <h3>Resume</h3>
+        <label class="file-upload-label" for="resumeUpload">Upload Resume</label>
+        <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx">
+        <p id="resumeName" data-name="">No resume uploaded</p>
+      </div>
+
+      <!-- Certificates Upload -->
+      <div class="certificates-section">
+        <h3>Certificates / Courses</h3>
+        <label class="file-upload-label" for="certUpload">Upload Certificate</label>
+        <input type="file" id="certUpload" accept=".pdf,.jpg,.png,.doc,.docx">
+        <div class="certificates-list" id="certificatesList"></div>
+      </div>
+
+      <!-- Save Button with smaller top margin -->
+      <button class="save-btn" id="saveProfile" style="margin-top:6px;">Save Changes</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  function loadStudentProfile(){
+    const name = localStorage.getItem("studentName") || "Student Name";
+    const avatar = localStorage.getItem("studentAvatar") || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    const email = localStorage.getItem("studentEmail") || "";
+    const university = localStorage.getItem("studentUniversity") || "";
+    const resume = localStorage.getItem("studentResume") || "";
+    const certificates = JSON.parse(localStorage.getItem("studentCertificates") || "[]");
+
+    document.getElementById("name").textContent = name;
+    document.getElementById("avatar").src = avatar;
+    document.getElementById("studentName").value = name;
+    document.getElementById("studentEmail").value = email;
+    document.getElementById("studentUniversity").value = university;
+
+    const resumeEl = document.getElementById("resumeName");
+    resumeEl.textContent = resume || "No resume uploaded";
+    resumeEl.setAttribute("data-name", resume || "");
+
+    const certList = document.getElementById("certificatesList");
+    certList.innerHTML = "";
+    certificates.forEach((cert,index)=>{
+      const div = document.createElement("div");
+      div.className = "certificate";
+      div.setAttribute("data-name", cert);
+      div.innerHTML = `<span>${cert}</span> <span class="remove-cert" data-index="${index}">&times;</span>`;
+      certList.appendChild(div);
+    });
+
+    document.querySelectorAll(".remove-cert").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        const idx = el.getAttribute("data-index");
+        certificates.splice(idx,1);
+        localStorage.setItem("studentCertificates", JSON.stringify(certificates));
+        loadStudentProfile();
+      });
+    });
+
+    updateProfileCompletion();
+  }
+
+  document.getElementById("avatar").addEventListener("click", ()=>document.getElementById("avatarUpload").click());
+  document.getElementById("avatarUpload").addEventListener("change",(e)=>{
+    const file = e.target.files[0];
+    if(file){
+      const reader = new FileReader();
+      reader.onload = ()=> {
+        document.getElementById("avatar").src = reader.result;
+        localStorage.setItem("studentAvatar", reader.result);
+        updateProfileCompletion();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.getElementById("resumeUpload").addEventListener("change",(e)=>{
+    const file = e.target.files[0];
+    if(file){
+      localStorage.setItem("studentResume", file.name);
+      loadStudentProfile();
+      updateProfileCompletion();
+    }
+  });
+
+  document.getElementById("certUpload").addEventListener("change",(e)=>{
+    const file = e.target.files[0];
+    if(file){
+      let certificates = JSON.parse(localStorage.getItem("studentCertificates") || "[]");
+      certificates.push(file.name);
+      localStorage.setItem("studentCertificates", JSON.stringify(certificates));
+      loadStudentProfile();
+    }
+  });
+
+  document.getElementById("saveProfile").addEventListener("click", ()=>{
+    localStorage.setItem("studentName", document.getElementById("studentName").value);
+    localStorage.setItem("studentEmail", document.getElementById("studentEmail").value);
+    localStorage.setItem("studentUniversity", document.getElementById("studentUniversity").value);
+    alert("Profile updated successfully!");
+    loadStudentProfile();
+  });
+
+  function updateProfileCompletion(){
+    let completed=0,total=6;
+    const name = localStorage.getItem("studentName");
+    const avatar = localStorage.getItem("studentAvatar");
+    const email = localStorage.getItem("studentEmail");
+    const university = localStorage.getItem("studentUniversity");
+    const resume = localStorage.getItem("studentResume");
+    const certificates = JSON.parse(localStorage.getItem("studentCertificates") || "[]");
+
+    if(name) completed++;
+    if(avatar && !avatar.includes("placeholder")) completed++;
+    if(email) completed++;
+    if(university) completed++;
+    if(resume) completed++;
+    if(certificates.length>0) completed++;
+
+    const percent = Math.round((completed/total)*100);
+    const bar = document.getElementById("profileCompletion");
+    bar.style.width = percent + "%";
+    bar.textContent = percent + "%";
+  }
+
+  document.addEventListener("DOMContentLoaded", loadStudentProfile);
+</script>
+
+</body>
+</html>

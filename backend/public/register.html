@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Intern Register</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(120deg, #9333ea, #2563eb);
+    }
+    .register-card {
+      background: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 0.8s ease;
+    }
+    .register-card img {
+      width: 70px;
+      margin-bottom: 10px;
+    }
+    .register-card h2 {
+      margin: 0 0 10px;
+      color: #1e293b;
+    }
+    .register-card p {
+      color: #64748b;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: #9333ea;
+      box-shadow: 0 0 6px rgba(147,51,234,0.3);
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(90deg, #9333ea, #2563eb);
+      color: #fff;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .links {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .links a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .links a:hover {
+      text-decoration: underline;
+    }
+    .msg {
+      margin-top: 15px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .msg.show {
+      opacity: 1;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="register-card">
+    <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" alt="register icon">
+    <h2>Create an Account</h2>
+    <p>Join AI-Intern and start your journey 🚀</p>
+    
+    <form id="registerForm">
+      <input type="text" id="name" placeholder="👤 Full Name" required>
+      <input type="email" id="email" placeholder="📧 Email" required>
+      <input type="password" id="password" placeholder="🔒 Password" required>
+      <input type="password" id="confirmPassword" placeholder="✅ Confirm Password" required>
+      <select id="role" required onchange="toggleDynamicFields()">
+        <option value="">-- Select Role --</option>
+        <option value="student">🎓 Student</option>
+        <option value="employer">💼 Employer</option>
+        <option value="institution">🏫 Institution</option>
+      </select>
+
+      <!-- Student Fields -->
+      <div id="studentFields" style="display:none; text-align: left;">
+        <select id="studentStatus" onchange="toggleCollegeFields()">
+          <option value="">-- Current Status --</option>
+          <option value="College Student">College Student</option>
+          <option value="College Completed">College Completed</option>
+        </select>
+        
+        <div id="collegeFields" style="display:none;">
+          <input type="text" id="instituteName" placeholder="🏫 Institute / College Name">
+          <input type="text" id="department" placeholder="📚 Department (e.g., CSE, ECE)">
+        </div>
+      </div>
+
+      <!-- Institution Fields -->
+      <div id="institutionFields" style="display:none;">
+        <input type="text" id="regInstitutionName" placeholder="🏫 Institution / University Name">
+      </div>
+
+      <input type="email" id="companyEmail" placeholder="🏢 Company Email (for Employers)" style="display:none;">
+      <button type="submit">Register</button>
+    </form>
+
+    <div class="links">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
+
+    <div class="msg" id="message"></div>
+  </div>
+
+  <script>
+    const registerForm = document.getElementById("registerForm");
+    const messageBox = document.getElementById("message");
+
+    function toggleDynamicFields() {
+      const role = document.getElementById("role").value;
+      const nameField = document.getElementById("name");
+      
+      // Employer Fields
+      const empField = document.getElementById("companyEmail");
+      empField.style.display = (role === "employer") ? "block" : "none";
+      empField.required = (role === "employer");
+
+      // Institution Fields
+      const instFields = document.getElementById("institutionFields");
+      const regInstName = document.getElementById("regInstitutionName");
+      if (role === "institution") {
+          instFields.style.display = "block";
+          regInstName.required = true;
+          nameField.style.display = "none";
+          nameField.required = false;
+      } else {
+          instFields.style.display = "none";
+          regInstName.required = false;
+          nameField.style.display = "block";
+          nameField.required = true;
+      }
+
+      // Student Fields
+      const studentFields = document.getElementById("studentFields");
+      const statusSelect = document.getElementById("studentStatus");
+      if (role === "student") {
+          studentFields.style.display = "block";
+          statusSelect.required = true;
+      } else {
+          studentFields.style.display = "none";
+          statusSelect.required = false;
+      }
+    }
+
+    function toggleCollegeFields() {
+      const status = document.getElementById("studentStatus").value;
+      const colFields = document.getElementById("collegeFields");
+      const instName = document.getElementById("instituteName");
+      const deptName = document.getElementById("department");
+      
+      if (status === "College Student") {
+          colFields.style.display = "block";
+          instName.required = true;
+          deptName.required = true;
+      } else {
+          colFields.style.display = "none";
+          instName.required = false;
+          deptName.required = false;
+      }
+    }
+
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const confirmPassword = document.getElementById("confirmPassword").value.trim();
+      const role = document.getElementById("role").value;
+      const companyEmail = document.getElementById("companyEmail").value.trim();
+      
+      // Additional Student Fields
+      const studentStatus = document.getElementById("studentStatus").value;
+      const instituteName = document.getElementById("instituteName").value.trim();
+      const department = document.getElementById("department").value.trim();
+      const institutionNameValue = document.getElementById("regInstitutionName").value.trim();
+
+      // Final Name Selection (Institutional vs Individual)
+      const finalName = (role === "institution") ? institutionNameValue : name;
+
+      // Reset message
+      messageBox.textContent = "";
+      messageBox.className = "msg";
+
+      if (!finalName || !email || !password || !confirmPassword || !role) {
+        messageBox.textContent = "❌ All fields are required";
+        messageBox.className = "msg error show";
+        return;
+      }
+
+      if (role === "employer" && !companyEmail) {
+        messageBox.textContent = "❌ Company Email is required for Employers";
+        messageBox.className = "msg error show";
+        return;
+      }
+
+      // Regex for password strength: 8+ chars, 1 uppercase, 1 number, 1 special char
+      const passwordRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
+      if (!passwordRegex.test(password)) {
+        messageBox.textContent = "❌ Password: 8+ chars, 1 upper, 1 number, 1 special char";
+        messageBox.className = "msg error show";
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        messageBox.textContent = "❌ Passwords do not match";
+        messageBox.className = "msg error show";
+        return;
+      }
+
+      try {
+        const payload = { name: finalName, email, password, role };
+        if (role === "employer") payload.companyEmail = companyEmail;
+        if (role === "student") {
+            payload.studentStatus = studentStatus;
+            if (studentStatus === "College Student") {
+                payload.university = instituteName;
+                payload.department = department;
+            }
+        }
+
+        const response = await fetch("http://localhost:5000/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          messageBox.textContent = "✅ Registration successful! Redirecting to login...";
+          messageBox.className = "msg success show";
+          setTimeout(() => window.location.href = "login.html", 1500);
+        } else {
+          messageBox.textContent = data.message || "❌ Registration failed";
+          messageBox.className = "msg error show";
+        }
+      } catch (err) {
+        console.error("❌ Network error:", err);
+        messageBox.textContent = "❌ Network error. Backend may be offline.";
+        messageBox.className = "msg error show";
+      }
+    });
+  </script>
+</body>
+</html>

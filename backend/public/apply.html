@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply for Internship</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
+  margin: 0;
+  padding: 20px;
+}
+
+    header {
+      width: 100%;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      background: linear-gradient(90deg, #2563eb, #9333ea);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .container {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+  margin: 20px auto; /* centers horizontally */
+  position: relative;
+}
+    h2 {
+      text-align: center;
+      color: #2563eb;
+      margin-bottom: 30px;
+      font-size: 1.8rem;
+    }
+
+    .form-step {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .form-group i {
+      position: absolute;
+      left: 12px;
+      top: 14px;
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px 14px 14px 36px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      background: #f9f9f9;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+    }
+
+    label {
+      position: absolute;
+      top: 14px;
+      left: 36px;
+      color: #6b7280;
+      font-weight: 500;
+      pointer-events: none;
+      transition: 0.3s;
+      background: #fff;
+      padding: 0 4px;
+    }
+
+    input:focus + label,
+    input:not(:placeholder-shown) + label,
+    select:focus + label,
+    select:not([value=""]) + label,
+    textarea:focus + label,
+    textarea:not(:placeholder-shown) + label {
+      top: -10px;
+      left: 30px;
+      font-size: 0.8rem;
+      color: #2563eb;
+    }
+
+    select {
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(90deg, #2563eb, #9333ea);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.5);
+    }
+
+    /* Animated Stepper */
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      color: #ccc;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .step.active {
+      color: #2563eb;
+    }
+
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: currentColor;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 19px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 3px;
+      background: #ccc;
+      z-index: -1;
+      transition: background 0.3s ease;
+    }
+
+    .step.active ~ .step::after {
+      background: #ccc;
+    }
+
+    .step.active::after {
+      background: #2563eb;
+    }
+
+    .step.completed::before {
+      background: #9333ea;
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+
+<header>Apply for Internship</header>
+
+<div class="container">
+  <h2>Apply for Internship</h2>
+
+  <div class="stepper">
+    <div class="step active" data-step="0">Role</div>
+    <div class="step" data-step="1">Personal</div>
+    <div class="step" data-step="2">Resume</div>
+  </div>
+
+  <form id="applyForm">
+    <!-- Step 1 -->
+    <div class="form-step active">
+      <div class="form-group">
+        <i class="fa-solid fa-briefcase"></i>
+        <select id="internship" name="internship" required>
+          <option value="" disabled selected></option>
+          <option value="Machine Learning Intern">Machine Learning Intern</option>
+          <option value="UI/UX Design Intern">UI/UX Design Intern</option>
+          <option value="Content Writer Intern">Content Writer Intern</option>
+          <option value="Web Development Intern">Web Development Intern</option>
+          <option value="Graphic Design Intern">Graphic Design Intern</option>
+        </select>
+        <label for="internship">Internship Role</label>
+      </div>
+      <div class="btn-group">
+        <div></div>
+        <button type="button" class="btn" id="next1">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="form-step">
+      <div class="form-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="name" name="name" placeholder=" " required>
+        <label for="name">Full Name</label>
+      </div>
+      <div class="form-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="email" name="email" placeholder=" " required>
+        <label for="email">Email Address</label>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn" id="prev2">Back</button>
+        <button type="button" class="btn" id="next2">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="form-step">
+      <div class="form-group">
+        <i class="fa-solid fa-file-arrow-up"></i>
+        <input type="url" id="resume" name="resume" placeholder=" " required>
+        <label for="resume">Resume Link (Google Drive/Dropbox)</label>
+      </div>
+      <div class="form-group">
+        <i class="fa-solid fa-pen"></i>
+        <textarea id="cover" name="cover" placeholder=" "></textarea>
+        <label for="cover">Cover Letter</label>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn" id="prev3">Back</button>
+        <button type="submit" class="btn">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('applyForm');
+  const steps = Array.from(document.querySelectorAll('.form-step'));
+  const stepIndicators = Array.from(document.querySelectorAll('.step'));
+  let currentStep = 0;
+
+  function showStep(index) {
+    steps.forEach((step, i) => step.classList.toggle('active', i === index));
+    stepIndicators.forEach((step, i) => {
+      step.classList.toggle('active', i <= index);
+      step.classList.toggle('completed', i < index);
+    });
+    currentStep = index;
+  }
+
+  // Stepper click navigation
+  stepIndicators.forEach((step, i) => {
+    step.addEventListener('click', () => showStep(i));
+  });
+
+  document.getElementById('next1').addEventListener('click', () => {
+    if(document.getElementById('internship').value) showStep(1);
+  });
+
+  document.getElementById('next2').addEventListener('click', () => {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    if(name && email) showStep(2);
+  });
+
+  document.getElementById('prev2').addEventListener('click', () => showStep(0));
+  document.getElementById('prev3').addEventListener('click', () => showStep(1));
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const internship = document.getElementById("internship").value;
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const resume = document.getElementById("resume").value;
+    const cover = document.getElementById("cover").value;
+
+    const subject = `Application for ${internship}`;
+    const body = `Hello HR,%0D%0A%0D%0A` +
+                 `I am applying for the role of ${internship}.%0D%0A%0D%0A` +
+                 `Name: ${name}%0D%0A` +
+                 `Email: ${email}%0D%0A` +
+                 `Resume: ${resume}%0D%0A%0D%0A` +
+                 `Cover Letter:%0D%0A${cover}`;
+
+    window.location.href = `mailto:hr@aiintern.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+  });
+</script>
+
+</body>
+</html>
+
+
+

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI-Intern Platform | Final Project Presentation</title>
+<style>
+:root {
+    --bg: #0f172a;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --primary: #3b82f6;
+    --accent: #8b5cf6;
+    --text: #f1f5f9;
+    --text-dim: #94a3b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+
+.slides-container { width: 100vw; height: 100vh; position: relative; }
+.slide { 
+    position: absolute; inset: 0; display: none; 
+    flex-direction: column; justify-content: center; align-items: center; 
+    padding: 4rem; text-align: left; transition: opacity 0.3s ease;
+    background: radial-gradient(circle at top right, #1e293b, #0f172a);
+}
+.slide.active { display: flex; animation: slideIn 0.5s ease forwards; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+h1 { font-size: 3.5rem; margin-bottom: 1rem; color: var(--primary); text-align: center; }
+h2 { font-size: 2.2rem; margin-bottom: 1.5rem; border-left: 5px solid var(--accent); padding-left: 15px; color: var(--text); }
+h3 { font-size: 1.4rem; color: var(--primary); margin-bottom: 0.8rem; }
+p, li { font-size: 1.1rem; line-height: 1.6; color: var(--text-dim); margin-bottom: 0.5rem; }
+ul { list-style: none; margin-top: 10px; }
+li::before { content: "▹"; color: var(--primary); margin-right: 10px; font-weight: bold; }
+
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; width: 100%; max-width: 1100px; }
+.card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.card.highlight { border-top: 4px solid var(--primary); }
+
+.badge-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2rem; justify-content: center; }
+.badge { background: var(--primary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+
+.controls { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 100; }
+.btn { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+.btn:hover { background: #2563eb; transform: translateY(-2px); }
+.slide-number { position: fixed; bottom: 35px; left: 40px; font-size: 0.9rem; color: var(--text-dim); font-weight: bold; }
+
+/* Special Slide Styles */
+.viva-q { color: #facc15; font-weight: bold; margin-bottom: 5px; display: block; }
+.viva-a { color: #4ade80; margin-bottom: 15px; display: block; padding-left: 20px; border-left: 2px solid #4ade80; }
+</style>
+</head>
+<body>
+
+<div class="slides-container">
+    <!-- Slide 1: Title -->
+    <div class="slide active" style="text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🎓</div>
+        <h1>AI-Intern Platform</h1>
+        <p style="font-size: 1.5rem; color: var(--text-dim);">An Intelligent Internship Ecosystem for the Future</p>
+        <div class="badge-row">
+            <span class="badge">Node.js</span><span class="badge" style="background:#10b981">MongoDB</span><span class="badge" style="background:#8b5cf6">OpenAI API</span><span class="badge" style="background:#f59e0b">PWA</span>
+        </div>
+        <p style="margin-top: 4rem; font-size: 1rem;">Presented by: Vijay Sri V | 2026 Viva Voce</p>
+    </div>
+
+    <!-- Slide 2: Problem & Solution -->
+    <div class="slide">
+        <h2>🚀 Problem & Solution</h2>
+        <div class="grid">
+            <div class="card highlight">
+                <h3>The Challenge</h3>
+                <ul>
+                    <li>Disconnected recruitment process.</li>
+                    <li>No real-time placement analytics.</li>
+                    <li>Students lack personalized AI guidance.</li>
+                    <li>Manual shortlisting is slow for employers.</li>
+                </ul>
+            </div>
+            <div class="card" style="border-top: 4px solid #10b981;">
+                <h3>The Solution</h3>
+                <ul>
+                    <li>Unified 3-Tier Web Application.</li>
+                    <li>AI-driven Match Scoring & Ranking.</li>
+                    <li>Progressive Web App (PWA) for Mobile.</li>
+                    <li>Live Institutional Data Dashboards.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Tech Stack Deep Dive -->
+    <div class="slide">
+        <h2>⚙️ Tech Stack Architecture</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Frontend Layer</h3>
+                <p><strong>HTML5, CSS3, JS:</strong> Core structure and styling with Glassmorphism.</p>
+                <p><strong>Chart.js:</strong> Dynamic data visualization for analytics.</p>
+                <p><strong>PWA:</strong> Service Workers for mobile app functionality.</p>
+            </div>
+            <div class="card">
+                <h3>Backend Layer</h3>
+                <p><strong>Node.js & Express:</strong> Scalable REST API architecture.</p>
+                <p><strong>JWT Auth:</strong> Secure stateless session management.</p>
+                <p><strong>MongoDB (Atlas):</strong> NoSQL database for flexible data schemas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Core Algorithms (VIVA FOCUS) -->
+    <div class="slide">
+        <h2>🧠 Core Algorithms</h2>
+        <div class="grid">
+            <div class="card highlight">
+                <h3>Weighted Recommendation</h3>
+                <p><strong>Formula:</strong> 70% Skills + 25% Academics + 5% Jitter.</p>
+                <p><strong>Usage:</strong> Ranks jobs specifically for each student's profile.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid #f43f5e;">
+                <h3>NLP Suitability Analysis</h3>
+                <p><strong>Logic:</strong> Semantic string comparison using OpenAI GPT.</p>
+                <p><strong>Usage:</strong> Extracts skills from PDF resumes and provides feedback.</p>
+            </div>
+        </div>
+        <p style="margin-top: 20px; font-size: 0.9rem; color: #facc15;">* These algorithms ensure the platform goes beyond simple keyword matching.</p>
+    </div>
+
+    <!-- Slide 5: User Dashboards -->
+    <div class="slide">
+        <h2>👥 Dashboard Features</h2>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; width: 100%;">
+            <div class="card" style="font-size: 0.9rem;">
+                <h3>🎓 Student</h3>
+                <li>Browse Jobs</li>
+                <li>AI Match Score</li>
+                <li>Mock Interview</li>
+                <li>PWA Installation</li>
+            </div>
+            <div class="card" style="font-size: 0.9rem;">
+                <h3>🏢 Employer</h3>
+                <li>Post Jobs</li>
+                <li>Rank Applicants</li>
+                <li>Status Tracking</li>
+                <li>Resume Preview</li>
+            </div>
+            <div class="card" style="font-size: 0.9rem;">
+                <h3>🏫 Institution</h3>
+                <li>Live Analytics</li>
+                <li>Placement Rates</li>
+                <li>Student Alerts</li>
+                <li>AI PDF Reports</li>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Database Schema (MongoDB) -->
+    <div class="slide">
+        <h2>🗃️ Data Model (Schemas)</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>User Model</h3>
+                <p>Stores <strong>name, email, role</strong>, and profile data like <strong>skills, cgpa, and department</strong>.</p>
+            </div>
+            <div class="card">
+                <h3>Internship Model</h3>
+                <p>Stores <strong>title, description, domain</strong>, and <strong>employerId</strong> (Reference to User).</p>
+            </div>
+            <div class="card">
+                <h3>Application Model</h3>
+                <p>Links <strong>student</strong> to <strong>internship</strong>. Stores <strong>status</strong> and <strong>matchScore</strong>.</p>
+            </div>
+            <div class="card">
+                <h3>Feedback Model</h3>
+                <p>Stores user ratings and text reviews for platform improvement.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Implementation Highlights -->
+    <div class="slide">
+        <h2>🔑 Implementation Details</h2>
+        <div class="grid">
+            <div class="card highlight">
+                <h3>🔐 Security (JWT)</h3>
+                <p>Tokens are signed on the server and stored in <code>localStorage</code>. Authenticated via <code>authMiddleware.js</code>.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid #8b5cf6;">
+                <h3>📁 File Uploads (Multer)</h3>
+                <p>Handles Resume and Avatar uploads. Files are served via static middleware with PDF content-type forcing.</p>
+            </div>
+        </div>
+        <div class="card" style="margin-top: 20px; width: 100%;">
+            <p><strong>🔄 Live Updating:</strong> Institution dashboard uses 30-second polling to refresh numbers and charts automatically.</p>
+        </div>
+    </div>
+
+    <!-- Slide 8: Viva Preparation (Q&A 1) -->
+    <div class="slide">
+        <h2>❓ Viva Preparation (Part 1)</h2>
+        <div class="card" style="width: 100%;">
+            <span class="viva-q">Q: How do you handle "No Internships found" for a user?</span>
+            <span class="viva-a">A: I added an empty state handler in <code>students.html</code> that prompts the user to add more skills or refresh their token if it has expired.</span>
+            
+            <span class="viva-q">Q: Why did you use a 30-second auto-refresh?</span>
+            <span class="viva-a">A: To provide real-time visibility to institutions during placement drives without requiring the user to manually reload the page.</span>
+        </div>
+    </div>
+
+    <!-- Slide 9: Viva Preparation (Part 2) -->
+    <div class="slide">
+        <h2>❓ Viva Preparation (Part 2)</h2>
+        <div class="card" style="width: 100%;">
+            <span class="viva-q">Q: How does the PDF Resume preview work?</span>
+            <span class="viva-a">A: I implemented a custom Express middleware for the <code>/uploads</code> route that forces the <code>Content-Type</code> to 'application/pdf', ensuring it opens in the browser.</span>
+            
+            <span class="viva-q">Q: How do you prevent Chart.js from crashing on data refresh?</span>
+            <span class="viva-a">A: I store chart instances in a tracking object and call <code>.destroy()</code> on existing charts before creating new ones with fresh data.</span>
+        </div>
+    </div>
+
+    <!-- Slide 10: Conclusion -->
+    <div class="slide" style="text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🚀</div>
+        <h1>Thank You!</h1>
+        <p style="font-size: 1.5rem; color: var(--text-dim);">Ready for Viva Voce & Live Demo</p>
+        <div class="card" style="margin-top: 3rem; background: var(--primary);">
+            <p style="color: white; font-weight: bold;">AI-Intern: Bridging Education & Employment</p>
+        </div>
+    </div>
+</div>
+
+<div class="controls">
+    <button class="btn" onclick="prev()">← Previous</button>
+    <button class="btn" onclick="next()">Next →</button>
+</div>
+<div class="slide-number" id="slideNum">Slide: 1 / 10</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const slideNum = document.getElementById('slideNum');
+
+    function showSlide(index) {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (index + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+        slideNum.textContent = `Slide: ${currentSlide + 1} / ${slides.length}`;
+    }
+
+    function next() { showSlide(currentSlide + 1); }
+    function prev() { showSlide(currentSlide - 1); }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') next();
+        if (e.key === 'ArrowLeft') prev();
+    });
+</script>
+
+</body>
+</html>

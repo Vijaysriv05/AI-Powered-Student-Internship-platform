@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+  if (!localStorage.getItem("token")) {
+    window.location.href = "login.html";
+  }
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard | AI-Intern</title>
+<style>
+/* Modern Layout & Variables */
+:root {
+  --primary: #2563eb;
+  --secondary: #3b82f6;
+  --bg: #f8fafc;
+  --header-height: 70px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: #1e293b;
+}
+
+/* Hero Banner (Top) */
+.hero-banner {
+  height: 350px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-banner img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+}
+.hero-overlay {
+  position: absolute; top:0; left:0; width:100%; height:100%;
+  background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4));
+}
+.hero-text {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; color: white;
+  z-index: 2;
+}
+.hero-text h1 { font-size: 3.5rem; margin: 0; }
+.hero-text p { font-size: 1.2rem; opacity: 0.9; margin: 10px 0 20px; }
+.hero-btn {
+  background: var(--primary); color: white; border: none;
+  padding: 12px 30px; border-radius: 30px; font-weight: bold;
+  cursor: pointer; transition: transform 0.2s;
+}
+.hero-btn:hover { transform: scale(1.05); }
+
+/* Blue Header Bar (Middle) */
+header {
+  background: var(--primary);
+  color: white;
+  height: 60px;
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+header h1 { font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 10px; }
+.header-right { display: flex; align-items: center; gap: 20px; }
+.profile-btn { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.profile-btn img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid white; }
+.logout { color: white; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+.logout:hover { opacity: 1; }
+
+/* Main Dashboard Grid */
+main {
+  max-width: 1400px;
+  margin: 30px auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  padding: 0 20px;
+}
+
+/* Sidebar Profile Card */
+.profile-sidebar {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  text-align: center;
+  position: sticky;
+  top: 30px;
+  height: fit-content;
+}
+.profile-sidebar img {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 4px solid #f1f5f9;
+  margin-bottom: 15px;
+}
+.profile-sidebar h2 { margin: 0; font-size: 1.2rem; color: #334155; }
+.profile-completion { margin-top: 25px; text-align: left; }
+.profile-completion h3 { font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px; }
+.progress-bar { background: #f1f5f9; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
+.progress-fill { background: var(--primary); height: 100%; transition: width 0.5s; }
+.profile-stats { margin-top: 20px; font-size: 0.85rem; color: #64748b; line-height: 2; }
+
+/* Content Sections */
+.section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 25px rgba(0,0,0,0.03);
+}
+.section h2 { margin-top: 0; display: flex; align-items: center; gap: 10px; color: var(--primary); font-size: 1.4rem; }
+
+/* Horizontal Pill Chips for Internships */
+.cards-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.pill-card {
+  background: #f8fafc;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pill-card:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+.pill-card .company { font-weight: bold; opacity: 0.7; }
+
+/* Gamification */
+.gamification-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+.g-box {
+  background: #f0f7ff;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+}
+.g-box h4 { margin: 0 0 5px; font-size: 0.8rem; color: #3b82f6; text-transform: uppercase; }
+.g-box .value { font-size: 1.5rem; font-weight: bold; color: #1d4ed8; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  main { grid-template-columns: 1fr; }
+  .profile-sidebar { position: relative; top: 0; }
+}
+</style>
+
+</style>
+</head>
+<!-- Hero Banner -->
+<section class="hero-banner">
+  <canvas id="particleCanvas"></canvas>
+  <img src="https://media.istockphoto.com/id/1461631485/photo/group-of-young-students-checking-exam-results-or-waiting-for-project-approval-on-laptop-at.jpg?s=1024x1024&w=is&k=20&c=Q3JJ_BHFwSkIHIaZ0AOE_Me2E4QS-BUEgEcNuJKgcrI=" alt="Happy College Students">
+  <div class="hero-overlay"></div>
+  <div class="hero-text">
+    <h1>Welcome to AI-Intern</h1>
+    <p>Your gateway to internships, skills, and career growth.</p>
+    <button class="hero-btn" onclick="location.href='#featured-internships'">Explore Internships</button>
+  </div>
+</section>
+
+<header>
+  <h1><span>📌</span> Student Dashboard</h1>
+  <div class="header-right">
+    <div class="profile-btn" onclick="location.href='students-profile.html'">
+      <span id="dashboardNameTop">Student Name</span>
+      <img id="dashboardAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+    </div>
+    <a href="#" class="logout" onclick="logout()">Logout</a>
+  </div>
+</header>
+
+<main>
+  <!-- Left Side Sidebar Profile -->
+  <aside class="profile-sidebar">
+    <img id="dashboardAvatarCard" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+    <h2 id="dashboardNameCard">Vijay Sri</h2>
+    
+    <div class="profile-completion">
+      <h3>Profile Completion</h3>
+      <div class="progress-bar">
+        <div class="progress-fill" id="dashboardProfileProgress" style="width: 0%;"></div>
+      </div>
+      <div style="font-size: 0.75rem; color: #64748b; font-weight: bold;" id="progressText">0% Complete</div>
+    </div>
+
+    <div class="profile-stats">
+      <div id="resumeStatus">Resume: Not uploaded</div>
+      <div id="coursesStatus">Courses: 0</div>
+    </div>
+    
+    <button class="hero-btn" style="width: 100%; margin-top: 20px; padding: 10px;" onclick="location.href='students-profile.html'">Edit Profile</button>
+  </aside>
+
+  <!-- Right Side Main Content -->
+  <div class="dashboard-content">
+    
+    <!-- AI Recommendations / Featured Internships -->
+    <div class="section" id="featured-internships">
+      <h2>🚀 Featured Internships</h2>
+      <div id="featuredInternshipsCards" class="cards-row">
+        <p>Analyzing best matches based on your skills...</p>
+      </div>
+    </div>
+
+    <!-- All Internships / Smart Search -->
+    <div class="section" id="all-internships">
+      <h2>🌍 All Job Postings & Smart Search</h2>
+      <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">Search all employer postings globally. Upload a resume to automatically filter them by matching skills!</p>
+      
+      <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: center; flex-wrap: wrap;">
+          <input type="file" id="searchResumeUpload" accept=".pdf,.docx" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+          <button class="hero-btn" onclick="performSmartSearch()" style="padding: 10px 20px;">AI Resume Search</button>
+          <button class="hero-btn" onclick="loadAllInternships(null)" style="padding: 10px 20px; background: #64748b;">View All</button>
+      </div>
+      <div id="smartSearchStatus" style="font-size: 0.85rem; color: #2563eb; margin-bottom: 15px; font-weight: bold;"></div>
+      
+      <div id="allInternshipsCards" class="cards-row" style="min-height: 100px;">
+        <p>Your portal to global opportunities is opening...</p>
+      </div>
+    </div>
+
+    <!-- Gamification -->
+    <div class="section" id="gamification">
+      <h2>⭐ Gamification</h2>
+      <div class="gamification-grid">
+        <div class="g-box">
+          <h4>Points</h4>
+          <div class="value" id="points">0</div>
+        </div>
+        <div class="g-box">
+          <h4>Streak</h4>
+          <div class="value" id="streak">0</div>
+        </div>
+        <div class="g-box">
+          <h4>Badges</h4>
+          <div id="badges" style="font-size: 0.7rem; color: #64748b;">No badges earned yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Status Tracker -->
+    <div class="section">
+      <h2>📋 Application Status Tracker</h2>
+      <div id="applicationTrackerCards" style="display: grid; gap: 15px;">
+        <p>No active applications.</p>
+      </div>
+    </div>
+
+    <!-- Learning Resources -->
+    <div class="section">
+      <h2>📅 Learning & Growth</h2>
+      <div class="cards-row">
+        <div class="pill-card" onclick="location.href='webinar-ai-workshop.html'">Mock Interview AI</div>
+        <div class="pill-card" onclick="location.href='career-fair.html'">Placement Fair</div>
+        <div class="pill-card" onclick="location.href='resume-builder.html'">Resume AI Analyzer</div>
+      </div>
+    </div>
+
+    <!-- Chatbot Assistant -->
+    <div class="section">
+       <h2>🤖 AI Career Assistant</h2>
+       <div id="chatBox" style="height:250px; overflow-y:auto; border:1px solid #eef2ff; padding:15px; border-radius:12px; background:#f8fafc; margin-bottom:15px; font-size: 0.9rem;"></div>
+       <div style="display:flex; gap:10px;">
+          <input type="text" id="chatInput" placeholder="Ask anything about your career..." style="flex:1; padding:12px; border-radius:10px; border:1px solid #e2e8f0;">
+          <button id="sendBtn" class="hero-btn" style="padding:10px 20px;">Send</button>
+       </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// ---------------- Session Management ----------------
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
+
+// ---------------- Collapsible ----------------
+document.querySelectorAll(".collapsible").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const content = btn.nextElementSibling;
+    content.style.display = (content.style.display === "block") ? "none" : "block";
+  });
+});
+
+
+// ---------------- Chatbot & Resume ----------------
+const role = "student";
+let uploadedResume = null;
+
+function appendChatMessage(sender, text){
+  const chatBox = document.getElementById("chatBox");
+  const div = document.createElement("div");
+  div.textContent = (sender === "user" ? "You: " : sender === "system" ? "" : "Bot: ") + text;
+  div.style.marginBottom = "10px";
+  if(sender === "user") div.style.fontWeight = "bold";
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage(message){
+  if(!message && !uploadedResume) return;
+  if(message) appendChatMessage("user", message);
+
+  const formData = new FormData();
+  formData.append("message", message);
+  formData.append("role", role);
+  if(uploadedResume) formData.append("resume", uploadedResume);
+
+  try {
+    const res = await fetch("http://localhost:5000/api/chatbot/chat-student", { method:"POST", body:formData });
+    const data = await res.json();
+    if(data.reply) {
+      appendChatMessage("bot", data.reply);
+    } else {
+      appendChatMessage("bot", "No response received.");
+    }
+    uploadedResume = null;
+  } catch(err){
+    console.error(err);
+    appendChatMessage("bot", "Something went wrong. Try again.");
+  }
+}
+
+document.getElementById("sendBtn").addEventListener("click", ()=>{
+  const input = document.getElementById("chatInput");
+  const message = input.value.trim();
+  input.value = "";
+  sendMessage(message);
+});
+
+document.getElementById("chatInput").addEventListener("keypress",(e)=>{
+  if(e.key==="Enter"){ e.preventDefault(); const message=e.target.value.trim(); e.target.value=""; sendMessage(message);}
+});
+// ---------------- Chat Input & Resume Upload ----------------
+document.getElementById("chatInput").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const message = e.target.value.trim();
+    e.target.value = "";
+    sendMessage(message);
+  }
+});
+
+document.getElementById("resumeUpload").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  uploadedResume = file;
+
+appendChatMessage("system", `Resume "${file.name}" uploaded successfully.`);
+
+
+  // Save resume for the current student in localStorage
+  const studentName = localStorage.getItem("studentName") || "Student Name";
+  localStorage.setItem(`${studentName}-resume`, file.name);
+
+
+  sendMessage("");
+});
+
+// ---------------- Voice Input ----------------
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRecognition) {
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  const micButton = document.createElement("button");
+  micButton.textContent = "🎤";
+  micButton.style.marginLeft = "10px";
+  micButton.style.fontSize = "18px";
+  micButton.onclick = () => {
+    recognition.start();
+    micButton.textContent = "🎙 Listening...";
+  };
+  document.getElementById("studentChatbotContainer").appendChild(micButton);
+  recognition.addEventListener("result", (e) => {
+    const transcript = e.results[0][0].transcript;
+    appendChatMessage("user", transcript);
+    sendMessage(transcript);
+  });
+  recognition.addEventListener("end", () => {
+    micButton.textContent = "🎤";
+  });
+}
+
+// ---------------- Ripple Effect ----------------
+document.querySelectorAll(".card").forEach((el) => {
+  el.addEventListener("click", function (e) {
+    const ripple = document.createElement("span");
+    ripple.className = "ripple";
+    const rect = el.getBoundingClientRect();
+    ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + "px";
+    ripple.style.left = e.clientX - rect.left - rect.width / 2 + "px";
+    ripple.style.top = e.clientY - rect.top - rect.height / 2 + "px";
+    el.appendChild(ripple);
+    setTimeout(() => {
+      ripple.remove();
+    }, 600);
+  });
+});
+
+// ---------------- Fade-in Sections ----------------
+const sections = document.querySelectorAll(".section");
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) entry.target.classList.add("visible");
+    });
+  },
+  { threshold: 0.1 }
+);
+sections.forEach((sec) => observer.observe(sec));
+
+// ---------------- Hero & Header Shrink ----------------
+window.addEventListener("scroll", () => {
+  document.body.classList.toggle("shrink", window.scrollY > 150);
+});
+
+// ---------------- Dashboard Profile (API Driven) ----------------
+async function updateDashboardProfile() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/profile", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const profile = await res.json();
+
+    if (res.ok) {
+      const name = profile.name || profile.full_name || "Student";
+      document.getElementById("dashboardNameTop").textContent = name;
+      document.getElementById("dashboardAvatar").src = profile.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+      document.getElementById("dashboardNameCard").textContent = name;
+      document.getElementById("dashboardAvatarCard").src = profile.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+      // Calculate profile completion %
+      let completeFields = 0;
+      const fields = ["name", "email", "university", "skills", "resume"];
+      fields.forEach(f => { if(profile[f] && (Array.isArray(profile[f]) ? profile[f].length > 0 : true)) completeFields++; });
+      const percent = Math.round((completeFields / fields.length) * 100);
+      document.getElementById("dashboardProfileProgress").style.width = percent + "%";
+      document.getElementById("progressText").textContent = percent + "% Complete (v3.0 - STABLE)";
+
+      // Stats
+      document.getElementById("coursesStatus").textContent = "Courses: " + (profile.courses?.length || 0);
+      document.getElementById("resumeStatus").textContent = profile.resume ? `Resume: Available` : "Resume: Not uploaded";
+      
+      // Gamification from DB
+      document.getElementById("points").textContent = profile.gamification?.points || 0;
+      document.getElementById("streak").textContent = (profile.gamification?.streak || 0) + " days";
+      
+      const badgesContainer = document.getElementById("badges");
+      if (profile.gamification?.badges?.length > 0) {
+        badgesContainer.innerHTML = profile.gamification.badges.map(b => `<span class="badge">${b}</span>`).join(" ");
+      } else {
+        badgesContainer.innerHTML = "None";
+      }
+
+      // Skill Analysis
+      const skillContent = document.getElementById("skillAnalysisContent");
+      if (profile.skills && profile.skills.length > 0) {
+        skillContent.innerHTML = `
+          <p>Your current skills: <span class="highlight">${profile.skills.join(", ")}</span></p>
+          <p>AI Suggestion: Based on your ${profile.cgpa ? "CGPA of " + profile.cgpa : "profile"}, we recommend focusing on specialized Cloud and AI certifications.</p>
+        `;
+      }
+
+      // --- Fetch Recommendations ---
+      const recRes = await fetch("/api/recommendations/internships", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const recommendations = await recRes.json();
+      if (recRes.ok) {
+        const recContainer = document.getElementById("featuredInternshipsCards");
+        if (recommendations.length > 0) {
+            recContainer.innerHTML = recommendations.map(rec => `
+                <div class="pill-card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span class="company">${rec.employerId?.companyName || 'Tech'}</span> ${rec.title} 
+                        <span style="font-size: 0.7rem; background: #dbeafe; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">${rec.matchScore}% Match</span>
+                    </div>
+                    <button class="hero-btn" onclick="applyWithResume('${rec._id}', '${rec.title}')" style="padding: 6px 16px; font-size: 0.85rem; margin-left:10px;">Apply</button>
+                </div>
+            `).join("");
+        } else {
+            recContainer.innerHTML = "<p style='padding:10px; color:#64748b; font-size: 0.8rem;'>Add more skills to your profile to unlock custom matches!</p>";
+        }
+      }
+
+      // --- Fetch Applications ---
+      const appRes = await fetch("/api/applications", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const applications = await appRes.json();
+      if (appRes.ok) {
+        const appContainer = document.getElementById("applicationTrackerCards");
+        if (Array.isArray(applications) && applications.length > 0) {
+            appContainer.innerHTML = applications.map(app => {
+                let statusInfo = '';
+                if(app.status === 'selected') statusInfo = '<span style="color:#10b981; font-weight:bold;">SELECTED 🎉</span>';
+                else if(app.status === 'shortlisted') statusInfo = '<span style="color:#8b5cf6; font-weight:bold;">SHORTLISTED ✨</span>';
+                else if(app.status === 'waiting list') statusInfo = '<span style="color:#f59e0b; font-weight:bold;">WAITING LIST ⏳</span>';
+                else if(app.status === 'rejected') statusInfo = '<span style="color:#ef4444; font-weight:bold;">REJECTED ❌</span>';
+                else statusInfo = '<span style="color:#3b82f6; font-weight:bold;">APPLIED 📋</span>';
+
+                return `
+                    <div style="background:#f8fafc; padding:15px; border-radius:12px; border: 1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                           <div style="font-weight:bold; color:#1e293b;">${app.internship?.title || 'Internship'}</div>
+                           <div style="font-size:0.8rem; color:#64748b;">Applied: ${new Date(app.createdAt).toLocaleDateString()}</div>
+                        </div>
+                        <div style="font-size:0.85rem;">${statusInfo}</div>
+                    </div>
+                `;
+            }).join("");
+        } else {
+            appContainer.innerHTML = "<p style='padding:10px; color:#666; font-size: 0.8rem;'>No applications yet. Start applying!</p>";
+        }
+      }
+      // Skill graph removed as per layout preference
+    }
+  } catch (err) {
+    console.error("Error updating dashboard:", err);
+  }
+}
+
+let currentApplyId = null;
+let currentApplyTitle = null;
+
+function applyWithResume(id, title) {
+    currentApplyId = id;
+    currentApplyTitle = title;
+    
+    // Dynamically insert file input for active uploading
+    let fileInput = document.getElementById('applyFileInput');
+    if (!fileInput) {
+        fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.id = 'applyFileInput';
+        fileInput.accept = '.pdf,.docx';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        
+        fileInput.addEventListener('change', async function() {
+            const file = this.files[0];
+            if(!file || !currentApplyId) return;
+
+            const token = localStorage.getItem("token");
+            const formData = new FormData();
+            formData.append("internshipId", currentApplyId);
+            formData.append("resumeFile", file);
+
+            try {
+                const res = await fetch("/api/applications", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(`✅ Successfully applied for ${currentApplyTitle} with ${file.name}! The employer has received your resume.`);
+                    updateDashboardProfile(); 
+                } else {
+                    alert("❌ Application failed: " + (data.message || "Unknown error"));
+                }
+            } catch(err) {
+                alert("❌ Failed to process application.");
+            }
+            
+            this.value = '';
+            currentApplyId = null;
+            currentApplyTitle = null;
+        });
+    }
+
+    const choice = confirm(`Do you want to upload a NEW resume for ${title}?\n\nClick OK to upload a new file now.\nClick Cancel to use your profile's saved resume.`);
+    if(choice) {
+        fileInput.click();
+    } else {
+        applyWithProfileResume(id, title);
+    }
+}
+
+async function applyWithProfileResume(id, title) {
+    const token = localStorage.getItem("token");
+    try {
+        const profRes = await fetch("/api/profile", { headers: { "Authorization": `Bearer ${token}` }});
+        const profile = await profRes.json();
+        
+        const res = await fetch("/api/applications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ internshipId: id, resume: profile.resume || "" })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✅ Successfully applied for ${title}! The employer has received your resume.`);
+            updateDashboardProfile(); 
+        } else {
+            alert("❌ Application failed: " + (data.message || "Unknown error"));
+        }
+    } catch(err) {
+        alert("❌ Failed to process application.");
+    }
+}
+
+window.loadAllInternships = async function(skillFilter = null) {
+    console.log("🚀 loadAllInternships CALLED", { skillFilter });
+    const container = document.getElementById("allInternshipsCards");
+    if(!container) {
+        console.error("❌ allInternshipsCards NOT FOUND");
+        return;
+    }
+    
+    container.innerHTML = "<p style='color:#2563eb; font-weight:bold;'>⏳ Connecting to placement server...</p>";
+    
+    try {
+        console.log("📡 Fetching from /api/internships/all...");
+        const res = await fetch("/api/internships/all");
+        let internships = await res.json();
+        console.log("📦 Received internships from server:", internships);
+        
+        if (!Array.isArray(internships)) {
+            console.error("❌ API returned non-array:", internships);
+            internships = [];
+        }
+        
+        // Match skills if filter active
+        if (skillFilter && skillFilter.length > 0) {
+            internships = internships.filter(i => {
+                if (!i.skills || !Array.isArray(i.skills)) return false;
+                return i.skills.some(s => s && skillFilter.includes(s.toLowerCase()));
+            });
+        }
+        
+        if (Array.isArray(internships) && internships.length > 0) {
+            container.innerHTML = internships.map(rec => {
+                const company = rec.employerId?.companyName || 'Employer';
+                return `
+                <div class="pill-card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span class="company">${company}</span> ${rec.title} 
+                        <span style="font-size: 0.7rem; background: #dbeafe; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">${rec.location || 'Remote'}</span>
+                    </div>
+                    <button class="hero-btn" onclick="applyWithResume('${rec._id}', '${rec.title}')" style="padding: 6px 16px; font-size: 0.85rem; margin-left:10px;">Apply Now</button>
+                </div>
+            `;}).join("");
+        } else {
+            container.innerHTML = "<p style='color:#64748b; font-size:0.9rem;'>No active internships found at the moment.</p>";
+        }
+    } catch (err) {
+        console.error("loadAllInternships error:", err);
+        container.innerHTML = `<p style='color:#ef4444;'>Error connecting to jobs: ${err.message}</p>`;
+    }
+}
+
+window.performSmartSearch = async function() {
+    const fileInput = document.getElementById("searchResumeUpload");
+    const file = fileInput.files[0];
+    const statusDiv = document.getElementById("smartSearchStatus");
+    
+    if (!file) {
+        alert("Please select a resume file to analyze first.");
+        return;
+    }
+    
+    statusDiv.textContent = "⏳ Analyzing your resume with AI... Please wait.";
+    
+    const formData = new FormData();
+    formData.append("resume", file);
+    
+    try {
+        const res = await fetch("/api/resume/analyze", {
+            method: "POST",
+            body: formData
+        });
+        
+        const data = await res.json();
+        let rawSkills = data.analysis ? data.analysis.skills : null;
+
+        if (res.ok && rawSkills) {
+            let extractedSkills = [];
+            if (typeof rawSkills === 'string') {
+                extractedSkills = rawSkills.split(",").map(s => s.trim().toLowerCase());
+            } else if (Array.isArray(rawSkills)) {
+                rawSkills.forEach(s => {
+                    if (typeof s === 'string') extractedSkills.push(s.toLowerCase());
+                    else if (s && s.name) extractedSkills.push(s.name.toLowerCase());
+                    else extractedSkills.push(String(s).toLowerCase());
+                });
+            } else {
+                extractedSkills = [String(rawSkills).toLowerCase()];
+            }
+
+            statusDiv.textContent = `✅ AI extracted skills: ${extractedSkills.join(", ")}. Filtering jobs...`;
+            loadAllInternships(extractedSkills);
+        } else {
+            statusDiv.textContent = "❌ Failed to extract skills.";
+        }
+    } catch (err) {
+        statusDiv.textContent = "❌ AI Analysis failed.";
+        console.error(err);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateDashboardProfile();
+    // Safety timeout to ensure DOM layout settles before fetching all internships
+    setTimeout(() => {
+        loadAllInternships().catch(console.error);
+    }, 100);
+});
+// Removed window.storage listener as it's now API-based
+
+// ---------------- Particle Canvas ----------------
+const canvas = document.getElementById("particleCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = 400;
+const particles = [];
+for (let i = 0; i < 50; i++)
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 1,
+    dx: (Math.random() - 0.5) / 2,
+    dy: (Math.random() - 0.5) / 2,
+  });
+let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+window.addEventListener("mousemove", (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((p) => {
+    const dx = mouse.x - p.x,
+      dy = mouse.y - p.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 100) {
+      p.x += dx * 0.002;
+      p.y += dy * 0.002;
+    }
+    p.x += p.dx;
+    p.y += p.dy;
+    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = 400;
+});
+// ---------------- Gamification Update ----------------
+function updateGamificationAuto() {
+  const name = localStorage.getItem("studentName") || "Student Name";
+  let courses = JSON.parse(localStorage.getItem(`${name}-courses`) || "[]");
+  let points = courses.length * 10 || 0;
+  let badges = [];
+  const resume = localStorage.getItem(`${name}-resume`) || "";
+  if (resume) badges.push("Resume Uploaded");
+  if (courses.length >= 3) badges.push("Course Pro");
+  let streak = JSON.parse(localStorage.getItem(`${name}-streak`) || 0) + 1;
+
+  localStorage.setItem(`${name}-points`, points);
+  localStorage.setItem(`${name}-badges`, JSON.stringify(badges));
+  localStorage.setItem(`${name}-streak`, streak);
+
+  document.getElementById("points").textContent = points;
+  document.getElementById("badges").innerHTML = badges.length
+    ? badges.map((b) => `<span class="badge">${b}</span>`).join(" ")
+    : "None";
+  document.getElementById("streak").textContent = streak + " days";
+}
+
+document.addEventListener("DOMContentLoaded", updateGamificationAuto);
+window.addEventListener("storage", updateGamificationAuto);
+
+
+document.getElementById("skillForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const fileInput = document.getElementById("resumeFile");
+  const desiredInternship = document.getElementById("desiredInternship").value;
+  const formData = new FormData();
+  formData.append("resume", fileInput.files[0]);
+  formData.append("desiredInternship", desiredInternship);
+
+  const resultDiv = document.getElementById("analysisResult");
+  resultDiv.innerHTML = "<p>Analyzing resume... Please wait.</p>";SpeechRecognition
+
+  try {
+    const res = await fetch("http://localhost:5000/api/skillgap/analyzeResume", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+  let html = "<h3>✅ Skill Gap Analysis Result:</h3>";
+  html += "<ul>";
+  data.foundSkills.forEach(s => html += `<li>✔ ${s}</li>`);
+  html += "</ul>";
+
+  html += "<h3>🚫 Missing Skills (Need Improvement):</h3>";
+  html += "<ul>";
+  data.missingSkills.forEach(s => html += `<li>❌ ${s}</li>`);
+  html += "</ul>";
+
+  html += "<h3>🎯 Recommended Learning Resources:</h3>";
+  html += "<ul>";
+  data.learningLinks.forEach(l => html += `<li><a href='${l.resource}' target='_blank'>${l.skill}</a></li>`);
+  html += "</ul>";
+
+  html += "<h3>💼 Internship Recommendations:</h3>";
+  html += "<ul>";
+  data.recommendations.forEach(i => html += `<li><a href='${i.link}' target='_blank'>${i.title} at ${i.company}</a></li>`);
+  html += "</ul>";
+
+  resultDiv.innerHTML = html;
+} else {
+  resultDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+}
+
+
+  } catch(err) {
+    console.error(err);
+    resultDiv.innerHTML = "<p style='color:red;'>Server Error. Try again later.</p>";
+  }
+});
+/*async function loadStudentJobs() {
+  try {
+    const res = await fetch("/api/internships");
+    const jobs = await res.json();
+
+    const container = document.getElementById("studentJobContainer");
+    container.innerHTML = "";
+
+    if (jobs.length === 0) {
+      container.innerHTML = "<p style='color:gray;'>No internships available.</p>";
+      return;
+    }
+
+    jobs.forEach(job => {
+      const div = document.createElement("div");
+      div.className = "job-card";
+      div.innerHTML = `
+        <h3>${job.title}</h3>
+        <p><strong>Company:</strong> ${job.employerId?.companyName || "N/A"}</p>
+        <p><strong>Duration:</strong> ${job.duration}</p>
+        <p><strong>Stipend:</strong> ${job.stipend}</p>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Error loading student jobs:", err);
+  }
+}
+
+document.getElementById("showJobsBtn").addEventListener("click", () => {
+    window.location.href = "./active-jobs.html";
+  });*/
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

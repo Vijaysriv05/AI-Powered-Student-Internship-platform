@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI-Intern Register</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(120deg, #9333ea, #2563eb);
+    }
+    .register-card {
+      background: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 0.8s ease;
+    }
+    .register-card img {
+      width: 70px;
+      margin-bottom: 10px;
+    }
+    .register-card h2 {
+      margin: 0 0 10px;
+      color: #1e293b;
+    }
+    .register-card p {
+      color: #64748b;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: #9333ea;
+      box-shadow: 0 0 6px rgba(147,51,234,0.3);
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(90deg, #9333ea, #2563eb);
+      color: #fff;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .links {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .links a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .links a:hover {
+      text-decoration: underline;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="register-card">
+    <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" alt="register icon">
+    <h2>Create an Account</h2>
+    <p>Join AI-Intern and start your journey 🚀</p>
+    
+    <form id="registerForm">
+      <input type="text" placeholder="👤 Full Name" required>
+      <input type="email" placeholder="📧 Email" required>
+      <input type="password" placeholder="🔒 Password" required>
+      <input type="password" placeholder="✅ Confirm Password" required>
+      <select id="role" required>
+        <option value="">-- Select Role --</option>
+        <option value="student">🎓 Student</option>
+        <option value="employer">💼 Employer</option>
+        <option value="institution">🏫 Institution</option>
+      </select>
+      <button type="submit">Register</button>
+    </form>
+
+    <div class="links">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
+  </div>
+
+  <script>
+const registerForm = document.getElementById("registerForm");
+
+registerForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const role = document.getElementById("role").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, role, email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Registration successful! Please login.");
+      window.location.href = "/login.html";
+    } else {
+      alert(data.message || "Registration failed");
+    }
+  } catch (err) {
+    console.error("Network error:", err);
+    alert("Network error. Make sure backend is running.");
+  }
+});
+</script>
+
+</body>
+</html>

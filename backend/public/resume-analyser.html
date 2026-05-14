@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyse Resume | AI-Intern</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.2/src/wordcloud2.js"></script>
+<style>
+body {font-family:'Inter',sans-serif; margin:0; background:#f4f7fb; color:#333; overflow-x:hidden;}
+header {position:sticky; top:0; z-index:1000; background:linear-gradient(90deg,#2b7fbf,#4aa0ff); padding:15px 30px; color:#fff; display:flex; justify-content:space-between; align-items:center;}
+header h1 {margin:0; font-size:24px;}
+nav a {color:#fff; text-decoration:none; margin-left:20px; font-weight:600;}
+nav a:hover, nav a.active {text-decoration:underline;}
+.hero {position:relative; background:linear-gradient(135deg,#2b7fbf,#4aa0ff); padding:60px 30px; border-radius:16px; color:#fff; text-align:center; overflow:hidden;}
+.hero h2 {font-size:36px; margin-bottom:15px;}
+.hero p {font-size:18px; line-height:1.6; max-width:700px; margin:auto;}
+.particles {position:absolute; width:100%; height:100%; top:0; left:0; z-index:0;}
+main {max-width:1200px; margin:40px auto; padding:0 20px; display:flex; flex-wrap:wrap; gap:40px; position:relative; z-index:1; justify-content:center;}
+.form-card {background:#fff; padding:40px; border-radius:16px; box-shadow:0 15px 35px rgba(0,0,0,0.1); flex:1; min-width:320px; max-width:450px;}
+.form-group {margin-bottom:25px;}
+.form-group input, .form-group textarea {width:100%; padding:16px 12px; border:1px solid #ccc; border-radius:12px; font-size:15px;}
+button {background:#2b7fbf; color:#fff; padding:16px 30px; border:none; border-radius:12px; font-size:16px; cursor:pointer; transition:0.3s; margin-top:10px;}
+button:hover {background:#1f639c;}
+.btn-back {display:inline-block; margin-top:20px; color:#2b7fbf; text-decoration:none; font-weight:600;}
+.preview-card {background:#fff; padding:30px; border-radius:16px; box-shadow:0 15px 35px rgba(0,0,0,0.1); flex:1; min-width:320px; max-width:500px; position:sticky; top:100px;}
+.preview-card h3 {color:#2b7fbf; margin-bottom:10px;}
+.preview-card p {margin:8px 0; color:#555;}
+.progress-bar {background:#e0e0e0; border-radius:10px; overflow:hidden; height:20px; margin:10px 0;}
+.progress-bar-inner {height:100%; width:0%; background:#2b7fbf; text-align:right; padding-right:5px; color:#fff; font-weight:600; border-radius:10px; transition:0.5s;}
+#downloadBtn {display:none; margin-top:15px;}
+.wordcloud-container {margin-top:25px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AI-Intern</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="resume-builder.html">Build Resume</a>
+    <a href="resume-analyser.html" class="active">Analyse Resume</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="particles" id="particles-js"></div>
+  <h2>Analyse Your Resume Professionally</h2>
+  <p>Upload your resume and job description to receive AI-powered ATS score, keyword analysis, skill match, and professional improvement suggestions.</p>
+</section>
+
+<main>
+  <section class="form-card">
+    <form id="analyzeForm">
+      <div class="form-group">
+        <label><strong>Upload Resume:</strong></label>
+        <input type="file" name="resume" id="resumeFile" required>
+      </div>
+      <div class="form-group">
+        <label><strong>Paste Job Description:</strong></label>
+        <textarea id="jobDescription" rows="6" placeholder="Paste the job description here..." required></textarea>
+      </div>
+      <button type="submit">Analyze Resume</button>
+    </form>
+    <a href="index.html" class="btn-back">← Back to Home</a>
+  </section>
+
+  <section class="preview-card" id="analysisPreview">
+    <h3>ATS Analysis Preview</h3>
+    <p><strong>File:</strong> <span id="fileName">—</span></p>
+    <p><strong>ATS Score:</strong> <span id="score">—</span></p>
+    <div class="progress-bar">
+      <div class="progress-bar-inner" id="scoreBar">0%</div>
+    </div>
+    <p><strong>Compatibility:</strong> <span id="ats">—</span></p>
+    <p><strong>Highlights & Suggestions:</strong></p>
+    <ul id="highlights"><li>Upload a resume and job description to see suggestions</li></ul>
+
+    <div class="wordcloud-container">
+      <h3>Keyword Word Cloud</h3>
+      <canvas id="wordCloud" style="width:100%; height:300px;"></canvas>
+      <div style="margin-top:15px; text-align:center; font-size:14px;">
+        <span style="color:green; font-weight:600;">● Matched Keywords</span> &nbsp;&nbsp;
+        <span style="color:red; font-weight:600;">● Missing Keywords</span> &nbsp;&nbsp;
+        <span style="color:blue; font-weight:600;">● Extra in Resume</span>
+      </div>
+    </div>
+
+    <button id="downloadBtn">📥 Download Report</button>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// Particle background
+particlesJS('particles-js', {
+  particles: { number: { value: 60 }, color: { value: "#ffffff" },
+    shape: { type: "circle" }, opacity: { value: 0.3 }, size: { value: 3 },
+    line_linked: { enable: true, distance: 120, color: "#ffffff", opacity: 0.2, width: 1 },
+    move: { enable: true, speed: 1 } },
+  interactivity: { detect_on: "canvas", events: { onhover: { enable: true, mode: "repulse" } } },
+  retina_detect: true
+});
+
+let uploadedFileName = "";
+let resumeText = "";
+
+// Read uploaded resume
+document.getElementById('resumeFile').addEventListener('change', async function(){
+  const file = this.files[0];
+  uploadedFileName = file ? file.name : "";
+  document.getElementById('fileName').textContent = uploadedFileName || "—";
+
+  if(file && file.type === "text/plain"){
+    resumeText = await file.text();
+  } else if(file && file.type === "application/pdf"){
+    const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
+    let text = "";
+    for(let i=1;i<=pdf.numPages;i++){
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(s=>s.str).join(" ");
+    }
+    resumeText = text;
+  }
+});
+
+// Professional ATS evaluation
+document.getElementById('analyzeForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  if(!resumeText){ alert("Please upload a resume first."); return; }
+
+  const jd = document.getElementById("jobDescription").value.toLowerCase().split(/\W+/);
+  const resumeWords = resumeText.toLowerCase().split(/\W+/);
+
+  // Keywords
+  const keywords = jd.filter(w => w.length > 3);
+  const matched = keywords.filter(w => resumeWords.includes(w));
+  const missing = keywords.filter(w => !resumeWords.includes(w));
+  const extra = resumeWords.filter(w => !keywords.includes(w) && w.length>3);
+
+  // Keyword Score
+  const keywordScore = Math.floor((matched.length / (keywords.length || 1)) * 50);
+
+  // Experience (check for years mentioned)
+  const experienceYears = (resumeText.match(/(\d+)\s*(years|yrs)/gi) || []).map(Number);
+  const expScore = Math.min(20, experienceYears.reduce((a,b)=>a+b,0)*2);
+
+  // Education Score
+  const eduKeywords = ["bachelor","master","mba","b.sc","m.sc"];
+  const eduScore = eduKeywords.some(kw => resumeText.toLowerCase().includes(kw)) ? 15 : 5;
+
+  // Formatting & Sections
+  const headings = ["experience","education","skills","projects","achievements"];
+  const headingScore = Math.floor((headings.filter(h => resumeText.toLowerCase().includes(h)).length / headings.length) * 15);
+
+  // Final ATS Score
+  let finalScore = Math.floor(keywordScore + expScore + eduScore + headingScore);
+  if(finalScore>100) finalScore=100;
+
+  // Update preview
+  document.getElementById('score').textContent = finalScore + '%';
+  const bar = document.getElementById('scoreBar');
+  bar.style.width = finalScore + '%';
+  bar.style.background = finalScore >= 80 ? 'green' : finalScore >= 50 ? 'orange' : 'red';
+  bar.textContent = finalScore + '%';
+  document.getElementById('ats').textContent = finalScore >= 80 ? 'Excellent' : finalScore >= 50 ? 'Good' : 'Poor';
+
+  // Highlights
+  const highlights = document.getElementById('highlights');
+  let highlightsHtml = "";
+  if(missing.length) highlightsHtml += `<li>Include missing keywords: ${missing.slice(0,5).join(", ")}...</li>`;
+  if(expScore < 10) highlightsHtml += "<li>Add relevant experience details.</li>";
+  if(headingScore < 15) highlightsHtml += "<li>Ensure proper headings: Experience, Skills, Education, Projects.</li>";
+  if(highlightsHtml === "") highlightsHtml = "<li>Resume looks ATS-friendly ✅</li>";
+  highlights.innerHTML = highlightsHtml;
+
+  // Word Cloud
+  const cloudData = [];
+  matched.forEach(w => cloudData.push([w, 20, "green"]));
+  missing.forEach(w => cloudData.push([w, 15, "red"]));
+  extra.forEach(w => cloudData.push([w, 12, "blue"]));
+  WordCloud(document.getElementById('wordCloud'), {
+    list: cloudData,
+    color: (word) => cloudData.find(d => d[0]===word)?.[2] || "black",
+    rotateRatio: 0.1
+  });
+
+  document.getElementById('downloadBtn').style.display = 'inline-block';
+});
+
+// Download PDF Report
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFont("helvetica", "bold");
+  doc.text("AI-Intern Resume ATS Analysis Report", 20, 20);
+  doc.setFont("helvetica", "normal");
+
+  if(uploadedFileName) doc.text("Analyzed File: " + uploadedFileName, 20, 35);
+  doc.text("ATS Score: " + document.getElementById('score').textContent, 20, 50);
+  doc.text("Compatibility: " + document.getElementById('ats').textContent, 20, 60);
+  doc.text("Highlights & Suggestions:", 20, 80);
+
+  const highlights = Array.from(document.querySelectorAll("#highlights li"));
+  highlights.forEach((li,i)=>doc.text("- " + li.textContent, 25, 90 + i*10));
+
+  const canvas = document.getElementById("wordCloud");
+  const imgData = canvas.toDataURL("image/png");
+  doc.addPage();
+  doc.text("Keyword Word Cloud", 20, 20);
+  doc.addImage(imgData,"PNG",20,40,160,120);
+
+  doc.save("Resume_ATS_Analysis_Report.pdf");
+});
+</script>
+</body>
+</html>
+

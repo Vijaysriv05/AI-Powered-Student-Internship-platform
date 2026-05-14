@@ -1,0 +1,26 @@
+{
+  "name": "AI-Intern Platform",
+  "short_name": "AI-Intern",
+  "description": "AI-Powered Student Internship & Placement Platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f2e4c",
+  "theme_color": "#6c63ff",
+  "categories": ["education", "business"],
+  "icons": [
+    {
+      "src": "/final-app-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/final-app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

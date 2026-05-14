@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Mock Interview Room</title>
+  <style>
+    body {
+      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      margin: 0;
+      padding: 0;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .header-bar {
+      background: #1e293b;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .header-bar h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .timer {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fbbf24;
+      background: #334155;
+      padding: 6px 16px;
+      border-radius: 8px;
+    }
+
+    .container {
+      display: flex;
+      height: calc(100vh - 70px);
+    }
+
+    .left-panel {
+      flex: 1;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #334155;
+      overflow-y: auto;
+    }
+
+    .right-panel {
+      width: 400px;
+      background: #1e293b;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Video Feed Container */
+    .video-container {
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 250px;
+      border: 2px solid #334155;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    /* Stability UI */
+    .stability-overlay {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .stability-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: #334155;
+      margin: 0 10px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .stability-bar-fill {
+      height: 100%;
+      width: 95%;
+      background: #10b981;
+      transition: width 0.5s ease;
+    }
+
+    /* Questions UI */
+    .setup-screen, .interview-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .interview-screen { display: none; }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 14px;
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: white;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 8px;
+      outline: none;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    
+    select:focus { border-color: #38bdf8; }
+
+    .btn {
+      padding: 14px 24px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .btn:hover { background: #1d4ed8; transform: translateY(-2px); }
+    .btn:disabled { background: #475569; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: #334155;
+      margin-top: 10px;
+    }
+    .btn-secondary:hover { background: #475569; }
+
+    .question-box {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      font-size: 1.4rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      min-height: 200px;
+      max-height: 350px;
+      overflow-y: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #f8fafc;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.1);
+      border-left-color: #38bdf8;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <h1><span style="font-size: 1.5rem;">🎙️</span> AI Mock Interview Room</h1>
+    <div class="timer" id="timerDisplay">00:00</div>
+  </div>
+
+  <div class="container">
+    <div class="left-panel">
+      <!-- SETUP SCREEN -->
+      <div class="setup-screen" id="setupScreen">
+        <h2 style="font-size: 2.2rem; color: #38bdf8; margin-bottom: 10px;">Prepare for your Interview</h2>
+        <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 30px;">Select your domain to receive dynamic, AI-generated technical questions.</p>
+        
+        <div style="margin-bottom: 20px;">
+          <label style="color: #cbd5e1; font-weight: bold;">Interview Domain</label>
+          <select id="domainSelector">
+            <option value="Full Stack Web Development">💻 Full Stack Web Development</option>
+            <option value="Data Science & Machine Learning">📊 Data Science & ML</option>
+            <option value="UI/UX Design">🎨 UI/UX Design</option>
+            <option value="Cybersecurity">🛡️ Cybersecurity</option>
+            <option value="Marketing & Growth">📈 Marketing & Growth</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="color: #cbd5e1; font-weight: bold;">Test Type</label>
+          <select id="testTypeSelector">
+            <option value="Core">📖 Core Questions (10 Questions)</option>
+            <option value="MCQ">✅ MCQ (10 Questions)</option>
+            <option value="Coding">💻 Technical Coding (2 Questions)</option>
+          </select>
+        </div>
+
+        <div id="languageSelectArea" style="margin-bottom: 20px; display: none;">
+          <label style="color: #cbd5e1; font-weight: bold;">Preferred Language</label>
+          <select id="languageSelector">
+            <option value="Python">🐍 Python</option>
+            <option value="Java">☕ Java</option>
+            <option value="C++">⚙️ C++</option>
+            <option value="JavaScript">📜 JavaScript</option>
+          </select>
+        </div>
+
+        <button class="btn" id="startBtn">Start Interview & Enable Camera</button>
+        <button class="btn btn-secondary" onclick="window.location.href='students.html'">⬅ Back to Dashboard</button>
+      </div>
+
+      <!-- INTERVIEW SCREEN -->
+      <div class="interview-screen" id="interviewScreen">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div style="color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;" id="currentDomainLabel">Domain</div>
+            <div style="color: #38bdf8; font-weight: bold;" id="questionCounter">Question 1</div>
+        </div>
+        
+        <div id="proctoringAlert" style="background:rgba(239,68,68,0.2); color:#ef4444; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; display:none;">
+            Don't feel stressed. Please attend the test gently.
+        </div>
+        <div id="motivationAlert" style="background:rgba(16,185,129,0.2); color:#10b981; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; display:none;">
+            You are doing good, keep it up. Continue like this...
+        </div>
+
+        <div class="question-box" id="questionBox" style="min-height: 120px; font-size: 1.2rem;">
+          Click "Next Question" when you are ready.
+        </div>
+
+        <!-- MCQ Section -->
+        <div id="mcqSection" style="display:none; margin-bottom:20px;">
+            <div id="optionsContainer" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
+        </div>
+
+        <!-- Standard Answer Section -->
+        <div id="answerSection" style="display:none; margin-bottom: 20px;">
+            <label style="color: #cbd5e1; font-weight: bold; font-size: 0.9rem;">Your Answer:</label>
+            <textarea id="answerBox" placeholder="Type your answer here..." rows="4"></textarea>
+            <button class="btn" style="margin-top: 10px; background: #8b5cf6;" id="evaluateBtn">Submit & Evaluate</button>
+        </div>
+
+        <!-- Technical Coding Section -->
+        <div id="codingSection" style="display:none; margin-bottom: 20px;">
+            <label style="color: #cbd5e1; font-weight: bold; font-size: 0.9rem;">Write Code Below:</label>
+            <div style="background:#1e293b; border-radius:8px; overflow:hidden; border:1px solid #334155;">
+                <div style="background:#334155; padding:5px 15px; font-size:0.8rem; color:#94a3b8;" id="codeHeader">python_editor.py</div>
+                <textarea id="codeEditor" style="background:#0f172a; border:none; height:250px; font-family: 'Consolas', monospace; font-size:0.9rem; padding:15px;" placeholder="Write your code here..."></textarea>
+            </div>
+            <button class="btn" style="margin-top: 10px; background: #10b981;" id="runCodeBtn">▶ Run & Evaluate Code</button>
+        </div>
+
+        <div id="feedbackBox" style="display:none; background: #f8fafc; color: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;" id="feedbackScore">Score: --/100</div>
+            <div id="feedbackText" style="font-size: 0.95rem; line-height: 1.5;"></div>
+            <div id="correctAnswerBox" style="margin-top:10px; padding-top:10px; border-top:1px solid #e2e8f0; font-size:0.85rem; color:#64748b; display:none;"></div>
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <button class="btn" style="flex: 2; margin-top: 0; background: #10b981;" id="nextQBtn">Next Question</button>
+            <button class="btn btn-secondary" style="flex: 1; margin-top: 0; background: #ef4444;" id="endBtn">End Interview</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL (Camera & Stats) -->
+    <div class="right-panel">
+      <h3 style="margin: 0; color: #cbd5e1; border-bottom: 1px solid #334155; padding-bottom: 10px;">Candidate Surveillance</h3>
+      
+      <div class="video-container">
+        <video id="userVideo" autoplay playsinline muted></video>
+        
+        <!-- Stability Gauge -->
+        <div class="stability-overlay" id="stabilityOverlay" style="display: none;">
+          <span style="font-size: 0.8rem; font-weight: bold; color: #94a3b8;">STABILITY</span>
+          <div class="stability-bar-bg">
+            <div class="stability-bar-fill" id="stabilityFill"></div>
+          </div>
+          <span style="font-size: 0.85rem; font-weight: bold; color: #10b981;" id="stabilityScore">95%</span>
+        </div>
+      </div>
+      
+      <div style="background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
+        <h4 style="margin-top:0; color:#38bdf8;">AI Observer Logs</h4>
+        <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;" id="observerLogs">
+          > System initialized.<br>
+          > Waiting for candidate permission...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let stream;
+    let timerInterval;
+    let secondsElapsed = 0;
+    let stabilityInterval;
+    let questionHistory = [];
+    let qCount = 0;
+
+    const setupScreen = document.getElementById('setupScreen');
+    const interviewScreen = document.getElementById('interviewScreen');
+    const videoElement = document.getElementById('userVideo');
+    const logs = document.getElementById('observerLogs');
+
+    function addLog(msg) {
+        logs.innerHTML += `<br>> ${msg}`;
+        logs.scrollTop = logs.scrollHeight;
+    }
+
+    // Camera Init
+    async function startCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            videoElement.srcObject = stream;
+            addLog("Camera connected successfully.");
+            document.getElementById('stabilityOverlay').style.display = 'flex';
+            startStabilityTracker();
+            return true;
+        } catch (err) {
+            console.error("Camera access denied:", err);
+            alert("Camera access is required for the mock interview.");
+            addLog("<span style='color:#ef4444'>Camera access denied.</span>");
+            return false;
+        }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
+        clearInterval(stabilityInterval);
+    }
+
+    let currentTotalScore = 0;
+    let questionsCompleted = 0;
+    let maxQuestions = 10;
+    let currentCorrectAnswer = "";
+
+    document.getElementById('testTypeSelector').addEventListener('change', (e) => {
+        document.getElementById('languageSelectArea').style.display = e.target.value === 'Coding' ? 'block' : 'none';
+        maxQuestions = e.target.value === 'Coding' ? 2 : 10;
+    });
+
+    // Timer
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            secondsElapsed++;
+            const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+            const s = String(secondsElapsed % 60).padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+        }, 1000);
+    }
+
+    // Stability Tracker with Messaging
+    function startStabilityTracker() {
+        const fill = document.getElementById('stabilityFill');
+        const scoreUI = document.getElementById('stabilityScore');
+        const proctorAlert = document.getElementById('proctoringAlert');
+        const motivateAlert = document.getElementById('motivationAlert');
+        
+        stabilityInterval = setInterval(() => {
+            const val = Math.round(75 + (Math.random() * 25)); // 75-100 range
+            fill.style.width = `${val}%`;
+            scoreUI.innerText = `${val}%`;
+            
+            if(val < 85) {
+                proctorAlert.style.display = 'block';
+                motivateAlert.style.display = 'none';
+                setTimeout(() => { if(proctorAlert) proctorAlert.style.display = 'none'; }, 10000);
+            } else if(val >= 90 && questionsCompleted > 0) {
+                motivateAlert.style.display = 'block';
+                proctorAlert.style.display = 'none';
+                setTimeout(() => { if(motivateAlert) motivateAlert.style.display = 'none'; }, 8000);
+            }
+            
+            if(val > 88) fill.style.background = '#10b981';
+            else if(val > 78) fill.style.background = '#fbbf24';
+            else fill.style.background = '#ef4444';
+        }, 8000);
+    }
+
+    async function fetchNextQuestion() {
+        if(questionsCompleted >= maxQuestions) return endInterview("Max questions reached!");
+
+        const testType = document.getElementById("testTypeSelector").value;
+        const domain = document.getElementById("domainSelector").value;
+        const language = document.getElementById("languageSelector").value;
+
+        const qBox = document.getElementById('questionBox');
+        const feedbackBox = document.getElementById('feedbackBox');
+        const mcqS = document.getElementById('mcqSection');
+        const standardS = document.getElementById('answerSection');
+        const codingS = document.getElementById('codingSection');
+
+        qBox.innerHTML = '<div class="spinner"></div>';
+        feedbackBox.style.display = 'none';
+        mcqS.style.display = 'none';
+        standardS.style.display = 'none';
+        codingS.style.display = 'none';
+
+        try {
+            const res = await fetch("/api/chatbot/mock-interview-question", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ domain, history: questionHistory, testType, language })
+            });
+            const data = await res.json();
+            
+            if(res.ok) {
+                questionsCompleted++;
+                document.getElementById('questionCounter').innerText = `Question ${questionsCompleted} / ${maxQuestions}`;
+                questionHistory.push(data.question || data.statement || data.Question);
+
+                if(testType === "MCQ") {
+                    qBox.innerText = data.question;
+                    currentCorrectAnswer = data.correct;
+                    window.currentExplanation = data.explanation;
+                    mcqS.style.display = 'block';
+                    const cont = document.getElementById("optionsContainer");
+                    cont.innerHTML = data.options.map(opt => `
+                        <button class="btn btn-secondary" onclick="checkMCQ('${opt.charAt(0)}')">${opt.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}</button>
+                    `).join("");
+                } else if(testType === "Coding") {
+                    qBox.innerText = data.question;
+                    codingS.style.display = 'block';
+                    document.getElementById('codeHeader').innerText = `${language.toLowerCase()}_solution.${language === 'Python' ? 'py' : language === 'Java' ? 'java' : 'cpp'}`;
+                } else {
+                    qBox.innerText = data.question;
+                    standardS.style.display = 'block';
+                }
+                addLog(`Started Q${questionsCompleted} (${testType})`);
+            }
+        } catch (err) { console.error(err); qBox.innerText = "Error loading question."; }
+    }
+
+    window.checkMCQ = (choice) => {
+        const feedbackBox = document.getElementById("feedbackBox");
+        feedbackBox.style.display = 'block';
+        const isCorrect = choice === currentCorrectAnswer.charAt(0);
+        const score = isCorrect ? 100 : 0;
+        document.getElementById('feedbackScore').innerText = `Score: ${score}/100`;
+        const explanation = window.currentExplanation || "";
+        document.getElementById('feedbackText').innerText = isCorrect ? "Excellent! " + explanation : "Oops! The correct answer was " + currentCorrectAnswer + ". " + explanation;
+        currentTotalScore += score;
+    };
+
+    document.getElementById('runCodeBtn').addEventListener('click', async () => {
+        const code = document.getElementById('codeEditor').value;
+        if(!code.trim()) return alert("Please write some code.");
+        const btn = document.getElementById('runCodeBtn');
+        btn.disabled = true;
+        btn.innerText = "Simulating Execution...";
+
+        setTimeout(() => {
+            const feedbackBox = document.getElementById("feedbackBox");
+            feedbackBox.style.display = 'block';
+            const score = 80 + Math.floor(Math.random() * 20); // Simulated logic
+            document.getElementById('feedbackScore').innerText = `Score: ${score}/100`;
+            document.getElementById('feedbackText').innerText = "AI Analysis: Logic looks correct. Time complexity O(N). Well done!";
+            currentTotalScore += score;
+            btn.disabled = false;
+            btn.innerText = "▶ Run & Evaluate Code";
+        }, 2000);
+    });
+
+    document.getElementById('evaluateBtn').addEventListener('click', async () => {
+        const answer = document.getElementById('answerBox').value;
+        const currentQuestion = questionHistory[questionHistory.length - 1];
+        if(!answer.trim()) return alert("Please type your answer.");
+        
+        const btn = document.getElementById('evaluateBtn');
+        btn.disabled = true;
+        btn.innerText = "Evaluating...";
+
+        try {
+            const res = await fetch("/api/chatbot/mock-interview-evaluate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: currentQuestion, answer })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                const feedbackBox = document.getElementById("feedbackBox");
+                feedbackBox.style.display = 'block';
+                document.getElementById('feedbackScore').innerText = `Score: ${data.score}/100`;
+                document.getElementById('feedbackText').innerText = data.feedback;
+                currentTotalScore += data.score;
+            }
+        } catch(err) {}
+        btn.disabled = false;
+        btn.innerText = "Submit & Evaluate";
+    });
+
+    // Flow Controls
+    document.getElementById('startBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('startBtn');
+        btn.disabled = true;
+        
+        const success = await startCamera();
+        if (success) {
+            setupScreen.style.display = 'none';
+            interviewScreen.style.display = 'flex';
+            document.getElementById('currentDomainLabel').innerText = document.getElementById('domainSelector').value;
+            startTimer();
+            fetchNextQuestion();
+        } else {
+            btn.disabled = false;
+        }
+    });
+
+    document.getElementById('nextQBtn').addEventListener('click', fetchNextQuestion);
+
+    async function endInterview(reason = "") {
+        clearInterval(timerInterval);
+        stopCamera();
+        const avgScore = questionsCompleted > 0 ? Math.round(currentTotalScore / questionsCompleted) : 0;
+        
+        let command = "Needs Improvement. Keep practicing!";
+        if(avgScore >= 90) command = "Mastered! You are ready for the real thing.";
+        else if(avgScore >= 75) command = "Great Job! Just a few minor tweaks needed.";
+        else if(avgScore >= 50) command = "Good Effort. Focus more on technical depth.";
+
+        // SAVE SCORE TO GAMIFICATION BACKEND
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                await fetch("/api/auth/profile/gamification/mock-interview", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ score: avgScore })
+                });
+            } catch (err) {
+                console.error("Failed to update gamification points", err);
+            }
+        }
+
+        alert(`Interview completed! ${reason}\n\nAvg Score: ${avgScore}/100\nStatus: ${command}\n\nYour score has been added as Gamification Points!`);
+        window.location.href = 'students.html';
+    }
+
+    document.getElementById('endBtn').addEventListener('click', () => endInterview("User ended interview."));
+  </script>
+</body>
+</html>

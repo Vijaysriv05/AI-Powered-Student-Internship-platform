@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Institution Profile | AI-Intern</title>
+<style>
+:root{
+  --primary1: #2563eb;
+  --primary2: #9333ea;
+  --bg: #f3f4f6;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color:#111;
+}
+header{
+  position:fixed;
+  top:0; left:0; right:0;
+  background: linear-gradient(90deg, var(--primary1), var(--primary2));
+  padding:16px 28px;
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:1000;
+  box-shadow:0 4px 20px rgba(0,0,0,0.1);
+}
+header a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
+  margin-left:16px;
+  transition: all 0.3s;
+}
+header a:hover{
+  color: #ffeb3b;
+  transform: scale(1.05);
+}
+
+main{
+  max-width:600px;
+  margin:140px auto 60px;
+  padding:0 20px;
+}
+
+.profile-form{
+  background:#fff;
+  padding:30px 24px;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.08);
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  align-items:center;
+  transition: all 0.3s;
+}
+.profile-form:hover{
+  transform: translateY(-4px);
+  box-shadow:0 28px 50px rgba(0,0,0,0.12);
+}
+
+.profile-form h2{
+  margin:0 0 12px 0;
+  font-size:1.6rem;
+  color: var(--primary1);
+  text-align:center;
+}
+
+/* Profile logo container */
+.logo-container{
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom:16px;
+}
+
+.logo-preview{
+  width: 100%;
+  height: 100%;
+  border-radius:50%;
+  object-fit:cover;
+  border:4px solid var(--primary1);
+  background:#f0f0f0;
+  cursor:pointer;
+  transition: all 0.3s;
+}
+.logo-preview:hover{
+  transform: scale(1.05);
+  box-shadow:0 0 12px rgba(37,99,235,0.4);
+}
+
+/* Edit icon overlay */
+.edit-icon{
+  position: absolute;
+  bottom:0;
+  right:0;
+  background: var(--primary2);
+  color: #fff;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:16px;
+  cursor:pointer;
+  border:2px solid #fff;
+  transition: all 0.3s;
+}
+.edit-icon:hover{
+  transform: scale(1.2);
+  background: var(--primary1);
+}
+
+.profile-form input, 
+.profile-form textarea{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  width:100%;
+  font-size:1rem;
+  transition: all 0.3s;
+}
+.profile-form input:focus,
+.profile-form textarea:focus{
+  outline:none;
+  border-color: var(--primary1);
+  box-shadow: 0 0 8px rgba(37,99,235,0.3);
+}
+.profile-form textarea{
+  resize: vertical;
+  min-height:100px;
+}
+
+.profile-form button{
+  padding:12px 18px;
+  border-radius:12px;
+  background: linear-gradient(90deg, var(--primary1), var(--primary2));
+  color:#fff;
+  font-weight:600;
+  border:none;
+  cursor:pointer;
+  transition: all 0.3s;
+}
+.profile-form button:hover{
+  transform: scale(1.05);
+  box-shadow:0 12px 28px rgba(37,99,235,0.4);
+}
+
+input[type="file"]{
+  display:none;
+}
+
+@media(max-width:640px){
+  main{
+    margin-top:120px;
+  }
+  .profile-form{
+    padding:24px 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span>AI-Intern — Institution Profile</span>
+  <div>
+    <a href="institutions.html">Dashboard</a>
+    <a href="login.html">Logout</a>
+  </div>
+</header>
+
+<main>
+  <form class="profile-form" id="institutionProfileForm">
+    <div class="logo-container">
+      <img id="logoPreview" class="logo-preview" src="https://cdn-icons-png.flaticon.com/512/235/235347.png" alt="Logo Preview">
+      <div class="edit-icon">✎</div>
+      <input type="file" id="logoInput" accept="image/*">
+    </div>
+    <h2>Edit Institution Profile</h2>
+    <input type="text" id="institutionName" placeholder="Institution Name" required>
+    <input type="email" id="institutionEmail" placeholder="Email" required>
+    <input type="text" id="domain" placeholder="Domain" required>
+    <input type="url" id="website" placeholder="Website URL">
+    <textarea id="description" placeholder="Brief Description"></textarea>
+    <button type="submit">Save Profile</button>
+  </form>
+</main>
+
+<script>
+// ===== Load profile =====
+async function loadProfile() {
+  const token = localStorage.getItem("token");
+  if(!token){
+    alert("Please login first!");
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/institution/profile", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if(data.user){
+      document.getElementById("institutionName").value = data.user.institutionName || "";
+      document.getElementById("institutionEmail").value = data.user.email || "";
+      document.getElementById("domain").value = data.user.domain || "";
+      document.getElementById("website").value = data.user.website || "";
+      document.getElementById("description").value = data.user.description || "";
+      document.getElementById("logoPreview").src = data.user.avatar || "https://cdn-icons-png.flaticon.com/512/235/235347.png";
+    }
+  } catch(err){
+    console.error("Error loading profile:", err);
+    alert("Failed to load profile from server. Showing saved data instead.");
+    // fallback to localStorage
+    loadProfileFromLocalStorage();
+  }
+}
+
+// Fallback: load from localStorage
+function loadProfileFromLocalStorage(){
+  document.getElementById("institutionName").value = localStorage.getItem("institutionName")||"";
+  document.getElementById("institutionEmail").value = localStorage.getItem("institutionEmail")||"";
+  document.getElementById("domain").value = localStorage.getItem("domain")||"";
+  document.getElementById("website").value = localStorage.getItem("website")||"";
+  document.getElementById("description").value = localStorage.getItem("description")||"";
+  document.getElementById("logoPreview").src = localStorage.getItem("institutionLogo") || "https://cdn-icons-png.flaticon.com/512/235/235347.png";
+}
+
+// ===== Save profile =====
+async function saveProfile(e){
+  e.preventDefault();
+  const token = localStorage.getItem("token");
+  const payload = {
+    institutionName: document.getElementById("institutionName").value,
+    email: document.getElementById("institutionEmail").value,
+    domain: document.getElementById("domain").value,
+    website: document.getElementById("website").value,
+    description: document.getElementById("description").value,
+    avatar: document.getElementById("logoPreview").src
+  };
+
+  try {
+    const res = await fetch("/api/institution/profile", {
+      method: "PUT",
+      headers: {
+        "Content-Type":"application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if(res.ok){
+      alert("Profile saved successfully!");
+      window.location.href = "institutions.html";
+    } else {
+      alert(data.message || "Error saving profile.");
+    }
+  } catch(err){
+    console.error(err);
+    alert("Network error. Try again later.");
+  }
+}
+
+// ===== Logo upload logic =====
+document.getElementById("logoPreview").addEventListener("click", () => document.getElementById("logoInput").click());
+document.querySelector(".edit-icon").addEventListener("click", () => document.getElementById("logoInput").click());
+document.getElementById("logoInput").addEventListener("change", function(){
+  const file = this.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      document.getElementById("logoPreview").src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+// ===== Event listener for form =====
+document.getElementById("institutionProfileForm").addEventListener("submit", saveProfile);
+
+// ===== Load profile on page load =====
+document.addEventListener("DOMContentLoaded", loadProfile);
+</script>
+
+
+</body>
+</html>

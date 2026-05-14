@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback | AI-Intern</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .feedback-container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #2563eb;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+      color: #333;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    button {
+      width: 100%;
+      background: linear-gradient(90deg, #2563eb, #9333ea);
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .feedback-item h3 {
+      margin: 0;
+      color: #9333ea;
+    }
+    .feedback-item p {
+      margin: 5px 0;
+      color: #444;
+    }
+    .meta {
+      font-size: 13px;
+      color: #666;
+    }
+    .no-feedback {
+      text-align: center;
+      font-size: 16px;
+      color: #999;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="feedback-container">
+    <h2>💬 Share Your Feedback</h2>
+    <form id="feedbackForm">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+      <label for="email">Your Email</label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+      <label for="role">Your Role</label>
+      <select id="role" name="role" required>
+        <option value="">-- Select Role --</option>
+        <option value="Student">🎓 Student</option>
+        <option value="Institution">🏫 Institution</option>
+        <option value="Employer">💼 Employer</option>
+      </select>
+
+      <label for="rating">Rate Your Experience</label>
+      <select id="rating" name="rating" required>
+        <option value="">-- Select Rating --</option>
+        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+        <option value="4">⭐⭐⭐⭐ Good</option>
+        <option value="3">⭐⭐⭐ Average</option>
+        <option value="2">⭐⭐ Poor</option>
+        <option value="1">⭐ Very Bad</option>
+      </select>
+
+      <label for="message">Your Feedback</label>
+      <textarea id="message" name="message" placeholder="Write your feedback here..." required></textarea>
+
+      <button type="submit" id="submitBtn">Submit Feedback</button>
+      <button type="button" class="btn" style="background:#64748b; width:100%; border:none; padding:12px; border-radius:8px; color:white; font-size:16px; font-weight:600; cursor:pointer; margin-top:10px; transition:0.3s;" onclick="window.location.href='view-feedback.html'">📋 View All Feedbacks</button>
+    </form>
+
+
+    <!-- Feedback List -->
+    <div class="feedback-list" id="feedbackList"></div>
+  </div>
+
+  <script>
+    // Load feedback on page load
+    window.onload = loadRecentFeedback;
+
+    // Handle form submission
+    document.getElementById("feedbackForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.innerText = "Submitting...";
+
+      const payload = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        role: document.getElementById("role").value,
+        rating: document.getElementById("rating").value,
+        message: document.getElementById("message").value
+      };
+
+      try {
+        const res = await fetch("/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) {
+          alert("✅ Thank you! Your feedback has been saved to our database.");
+          this.reset();
+          loadRecentFeedback();
+        } else {
+          alert("❌ Failed to save feedback.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Network error.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Submit Feedback";
+      }
+    });
+
+    // Display recent feedback
+    async function loadRecentFeedback() {
+      try {
+        const res = await fetch("/api/feedback");
+        const feedbacks = await res.json();
+        let container = document.getElementById("feedbackList");
+        container.innerHTML = "";
+
+        if (!feedbacks || feedbacks.length === 0) {
+          container.innerHTML = "<p class='no-feedback'>No feedback available yet.</p>";
+          return;
+        }
+
+        feedbacks.slice(0, 5).forEach(fb => {
+          let div = document.createElement("div");
+          div.classList.add("feedback-item");
+          div.innerHTML = `
+            <h3>${fb.name} <span class="meta">(${fb.role})</span></h3>
+            <p><strong>Rating:</strong> ${"⭐".repeat(fb.rating)}</p>
+            <p>${fb.message}</p>
+            <p class="meta">Submitted on: ${new Date(fb.date).toLocaleString()}</p>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) { console.error(err); }
+    }
+
+  </script>
+</body>
+</html>

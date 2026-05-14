@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Feedback | AI-Intern</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .feedback-container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 950px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #2563eb;
+      text-align: center;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0 20px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .filters input, .filters select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .feedback-item {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .feedback-item h3 {
+      margin: 0;
+      color: #9333ea;
+    }
+    .feedback-item p {
+      margin: 5px 0;
+      color: #444;
+    }
+    .meta {
+      font-size: 13px;
+      color: #666;
+    }
+    .no-feedback {
+      text-align: center;
+      font-size: 16px;
+      color: #999;
+      margin-top: 20px;
+    }
+    .btn-back {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 10px 15px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .btn-back:hover {
+      opacity: 0.85;
+    }
+    .clear-btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: #ef4444;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .clear-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="feedback-container">
+    <a href="feedback.html" class="btn-back">⬅ Back to Feedback Form</a>
+    <h2>📋 All Feedbacks</h2>
+
+    <!-- Search + Filter + Sort -->
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="🔍 Search by name or email" oninput="loadFeedback()">
+      <select id="ratingFilter" onchange="loadFeedback()">
+        <option value="">⭐ Filter by Rating</option>
+        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+        <option value="4">⭐⭐⭐⭐ Good</option>
+        <option value="3">⭐⭐⭐ Average</option>
+        <option value="2">⭐⭐ Poor</option>
+        <option value="1">⭐ Very Bad</option>
+      </select>
+      <select id="sortOption" onchange="loadFeedback()">
+        <option value="newest">📅 Newest First</option>
+        <option value="oldest">📅 Oldest First</option>
+        <option value="highest">⭐ Highest Rating</option>
+        <option value="lowest">⭐ Lowest Rating</option>
+      </select>
+    </div>
+
+    <!-- Feedback List -->
+    <div id="feedbackList"></div>
+    <button class="clear-btn" onclick="clearFeedback()">🗑️ Clear All Feedback</button>
+  </div>
+
+  <script>
+    window.onload = loadFeedback;
+
+    function loadFeedback() {
+      let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+      let container = document.getElementById("feedbackList");
+      let searchQuery = document.getElementById("searchInput").value.toLowerCase();
+      let ratingFilter = document.getElementById("ratingFilter").value;
+      let sortOption = document.getElementById("sortOption").value;
+
+      // Filter feedbacks
+      let filtered = feedbacks.filter(fb => {
+        let matchesSearch =
+          fb.name.toLowerCase().includes(searchQuery) ||
+          fb.email.toLowerCase().includes(searchQuery);
+        let matchesRating = ratingFilter ? fb.rating === ratingFilter : true;
+        return matchesSearch && matchesRating;
+      });
+
+      // Sort feedbacks
+      filtered.sort((a, b) => {
+        if (sortOption === "newest") {
+          return new Date(b.date) - new Date(a.date);
+        } else if (sortOption === "oldest") {
+          return new Date(a.date) - new Date(b.date);
+        } else if (sortOption === "highest") {
+          return b.rating - a.rating;
+        } else if (sortOption === "lowest") {
+          return a.rating - b.rating;
+        }
+      });
+
+      container.innerHTML = "";
+
+      if (filtered.length === 0) {
+        container.innerHTML = "<p class='no-feedback'>No matching feedback found.</p>";
+        return;
+      }
+
+      filtered.forEach(fb => {
+        let div = document.createElement("div");
+        div.classList.add("feedback-item");
+        div.innerHTML = `
+          <h3>${fb.name} <span class="meta">(${fb.email})</span></h3>
+          <p><strong>Rating:</strong> ${"⭐".repeat(fb.rating)}</p>
+          <p>${fb.message}</p>
+          <p class="meta">Submitted on: ${fb.date}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function clearFeedback() {
+      if (confirm("Are you sure you want to delete all feedback?")) {
+        localStorage.removeItem("feedbacks");
+        loadFeedback();
+      }
+    }
+  </script>
+</body>
+</html>
