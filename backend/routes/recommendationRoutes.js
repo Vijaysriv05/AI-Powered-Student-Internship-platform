@@ -1,7 +1,7 @@
 import express from "express";
 import { auth } from "../middleware/authMiddleware.js";
 import Internship from "../models/Internship.js";
-import User from "../models/User.js";
+import User from "../models/user.js";
 import Application from "../models/Application.js";
 import { rankInternships, calculateMatchScore, calculateSuitability } from "../utils/recommendationEngine.js";
 import multer from "multer";

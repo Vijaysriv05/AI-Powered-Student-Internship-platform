@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import Employer from "../models/Employer.js";
 import Internship from "../models/Internship.js";
 import Application from "../models/Application.js";
-import User from "../models/User.js";
+import User from "../models/user.js";
 
 // ✅ Import correct middleware and controllers
 import { auth, employerAuth } from "../middleware/authMiddleware.js";
