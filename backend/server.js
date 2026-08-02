@@ -175,25 +175,34 @@ const PORT = parseInt(process.env.PORT) || 5000;
 const server = app.listen(PORT, () => {
   console.log(`\n🚀 \x1b[32mServer running at http://localhost:${PORT}\x1b[0m`);
 
-  // Start Pinggy SSH Tunnel unconditionally on boot to bypass Windows Firewall
-  global.tunnelUrl = null;
-  const pinggy = spawn("ssh", ["-p", "443", "-R0:localhost:" + PORT, "-o", "StrictHostKeyChecking=no", "a.pinggy.io"]);
-  pinggy.stdout.on("data", (data) => {
-      const output = data.toString();
-      const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.pinggy-free\.link/);
-      if (match && !global.tunnelUrl) {
-          global.tunnelUrl = match[0];
-          console.log(`\n🌍 \x1b[32mPUBLIC TUNNEL ACTIVE (Bypasses Firewall!):\x1b[0m ${global.tunnelUrl}\n`);
-      }
-  });
-  pinggy.stderr.on("data", (data) => {
-      const output = data.toString();
-      const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.pinggy-free\.link/);
-      if (match && !global.tunnelUrl) {
-          global.tunnelUrl = match[0];
-          console.log(`\n🌍 \x1b[32mPUBLIC TUNNEL ACTIVE (Bypasses Firewall!):\x1b[0m ${global.tunnelUrl}\n`);
-      }
-  });
+  // Start Pinggy SSH Tunnel in development mode to bypass Windows Firewall
+  if (process.env.NODE_ENV !== "production") {
+    global.tunnelUrl = null;
+    try {
+      const pinggy = spawn("ssh", ["-p", "443", "-R0:localhost:" + PORT, "-o", "StrictHostKeyChecking=no", "a.pinggy.io"]);
+      pinggy.stdout.on("data", (data) => {
+          const output = data.toString();
+          const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.pinggy-free\.link/);
+          if (match && !global.tunnelUrl) {
+              global.tunnelUrl = match[0];
+              console.log(`\n🌍 \x1b[32mPUBLIC TUNNEL ACTIVE (Bypasses Firewall!):\x1b[0m ${global.tunnelUrl}\n`);
+          }
+      });
+      pinggy.stderr.on("data", (data) => {
+          const output = data.toString();
+          const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.pinggy-free\.link/);
+          if (match && !global.tunnelUrl) {
+              global.tunnelUrl = match[0];
+              console.log(`\n🌍 \x1b[32mPUBLIC TUNNEL ACTIVE (Bypasses Firewall!):\x1b[0m ${global.tunnelUrl}\n`);
+          }
+      });
+      pinggy.on("error", (err) => {
+          console.log("Pinggy SSH tunnel failed to start:", err.message);
+      });
+    } catch (e) {
+      console.log("Pinggy SSH tunnel exception ignored:", e.message);
+    }
+  }
 
   console.log(`\x1b[34m--------------------------------------------------\x1b[0m`);
   console.log(`🔗 \x1b[1mHome / Index:\x1b[0m http://localhost:${PORT}/index.html`);
