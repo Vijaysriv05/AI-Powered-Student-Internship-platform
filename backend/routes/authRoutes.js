@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
+import mongoose from "mongoose";
 import multer from "multer";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import { googleLogin, forgotPassword, resetPassword, login } from "../controllers/authController.js";
@@ -134,11 +135,20 @@ router.get("/platform-stats", async (req, res) => {
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role, studentStatus, university, department } = req.body;
+    if (mongoose.connection.readyState !== 1) {
+      console.error("❌ DB not connected during registration. readyState:", mongoose.connection.readyState);
+      return res.status(503).json({ message: "Database is not connected. Please check MONGO_URI and MongoDB Atlas IP Whitelist (0.0.0.0/0)." });
+    }
+
+    const { name, email, password, role, studentStatus, university, department } = req.body || {};
+
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: "Please fill in all required fields (email, password, role)." });
+    }
 
     // 🔹 Normalize Inputs
-    const normalizedEmail = email.toLowerCase().trim();
-    const normalizedRole = role.toLowerCase().trim();
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const normalizedRole = String(role).toLowerCase().trim();
 
     // 🔹 Check if email already registered
     const existingUser = await User.findOne({ email: normalizedEmail });
@@ -150,14 +160,14 @@ router.post("/register", async (req, res) => {
 
     // 🔹 Create base user
     const newUser = await User.create({
-      name,
+      name: name || "User",
       email: normalizedEmail,
       password: hashedPassword,
       role: normalizedRole,
       studentStatus: studentStatus || "None",
       university: university || "",
       department: department || "",
-      institutionName: normalizedRole === "institution" ? name : "", // ✅ Internal sync for analytics
+      institutionName: normalizedRole === "institution" ? (name || "") : "",
     });
 
     // 🔹 Create role-specific entry
@@ -185,14 +195,14 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    // 🔹 Success response
+    console.log(`✅ User registered successfully: ${normalizedEmail} (${normalizedRole})`);
     res.status(201).json({
       message: `${normalizedRole} registered successfully`,
       user: newUser,
     });
   } catch (err) {
     console.error("Register Error:", err);
-    res.status(500).json({ message: "Server error during registration" });
+    res.status(500).json({ message: `Server error during registration: ${err.message}` });
   }
 });
 
@@ -201,6 +211,10 @@ router.post("/register", async (req, res) => {
    ===================================================== */
 router.post("/login", async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      console.error("❌ DB not connected during login. readyState:", mongoose.connection.readyState);
+      return res.status(503).json({ message: "Database is not connected. Please check MONGO_URI and MongoDB Atlas IP Whitelist (0.0.0.0/0)." });
+    }
     const { email, password, role } = req.body || {};
     
     if (!email || !password || !role) {
