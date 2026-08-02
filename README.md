@@ -5,11 +5,16 @@
   
   **A Multi-Tenant Progressive Web App (PWA) connecting Students, Institutions, and Employers through Data-Driven AI Matching.**
 
+  [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Render-blue?style=for-the-badge&logo=render)](https://ai-powered-student-internship-platform.onrender.com)
   [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
   [![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
   [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
   [![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com/)
   [![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](#)
+
+  <br/>
+
+  ### 🌐 **Live Web Application:** [https://ai-powered-student-internship-platform.onrender.com](https://ai-powered-student-internship-platform.onrender.com)
 
 </div>
 
