@@ -165,7 +165,7 @@
         formData.append("resume", file);
 
         try {
-          const res = await fetch("http://localhost:5000/api/skillgap/analyzeResume", {
+          const res = await fetch("/api/skillgap/analyzeResume", {
             method: "POST",
             body: formData,
           });
@@ -262,7 +262,7 @@ async function analyzeResume() {
   console.log("Extracted Resume Text:", text);
 
   // 2️⃣ Fetch all internships
-const internshipsRes = await fetch("http://localhost:5000/api/internships/all");
+const internshipsRes = await fetch("/api/internships/all");
 
   const internships = await internshipsRes.json();
 
@@ -337,7 +337,7 @@ async function quickInternshipSearch(keyword) {
 
   try {
     // Fetch ALL internships
-    const res = await fetch("http://localhost:5000/api/internships/all");
+    const res = await fetch("/api/internships/all");
     const internships = await res.json();
     console.log("API DATA:", internships);
 
@@ -580,8 +580,8 @@ if (Array.isArray(i.skills)) {
   <!-- Templates & Script 
   <script>
     // ----------------- CONFIG -----------------
-    const SKILL_ANALYZE_URL = "http://localhost:5000/api/skillgap/analyzeResume"; // existing analyze endpoint
-    const INTERNSHIPS_URL = "http://localhost:5000/api/internships";              // confirmed endpoint
+    const SKILL_ANALYZE_URL = "/api/skillgap/analyzeResume"; // existing analyze endpoint
+    const INTERNSHIPS_URL = "/api/internships";              // confirmed endpoint
 
     // ----------------- UTILITIES -----------------
     function toArraySkills(raw) {

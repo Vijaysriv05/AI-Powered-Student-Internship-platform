@@ -261,7 +261,7 @@ main{max-width:1200px;margin:120px auto 60px;padding:0 20px;display:grid;grid-te
     if (!token) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/institutions/analytics", {
+      const res = await fetch("/api/institutions/analytics", {
         headers: { "Authorization": "Bearer " + token }
       });
       if (!res.ok) return;

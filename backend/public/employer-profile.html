@@ -471,7 +471,7 @@ saveBtn.addEventListener("click", saveProfile);
 async function loadEmployerProfile() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:5000/api/employer/profile", {
+  const res = await fetch("/api/employer/profile", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

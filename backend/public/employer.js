@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProfile(); // Existing logic
 
   // ==================== New fetch for debugging/logging ====================
-  fetch("http://localhost:5000/api/employer/profile", {
+  fetch("/api/employer/profile", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

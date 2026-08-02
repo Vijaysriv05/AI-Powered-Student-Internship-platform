@@ -141,7 +141,7 @@
         formData.append("resume", file);
 
         try {
-          const res = await fetch("http://localhost:5000/api/skillgap/analyzeResume", {
+          const res = await fetch("/api/skillgap/analyzeResume", {
             method: "POST",
             body: formData,
           });

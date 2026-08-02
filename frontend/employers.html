@@ -617,7 +617,7 @@
     function addMessage(type, text){const div=document.createElement("div");div.className="chat-msg "+type;div.textContent=text;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
     const aiInsights="AI suggests posting more internships for Data Science roles due to high student interest. Improve candidate selection by focusing on Cloud & ML certifications."; addMessage("bot",aiInsights.trim());
     async function sendMessage(){const text=input.value.trim();if(!text)return;addMessage("user",text);input.value="";const reply=await getAIResponse(text);addMessage("bot",reply);}
-    async function getAIResponse(message){try{const res=await fetch("http://localhost:5000/api/chatbot/employer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message})});const data=await res.json();return data.reply;}catch(e){console.error(e);return "⚠ Error: Could not fetch AI response.";}}
+    async function getAIResponse(message){try{const res=await fetch("/api/chatbot/employer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message})});const data=await res.json();return data.reply;}catch(e){console.error(e);return "⚠ Error: Could not fetch AI response.";}}
 
     // ---------------- Employer Dashboard: Load Profile ----------------
     async function loadEmployerProfile() {
@@ -676,7 +676,7 @@ async function postInternship() {
   if (!title || !description) return alert("Please fill in required fields.");
 
   try {
-    const res = await fetch("http://localhost:5000/api/internships", {
+    const res = await fetch("/api/internships", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -707,7 +707,7 @@ async function postInternship() {
 
 async function loadMyInternships() {
   try {
-    const res = await fetch("http://localhost:5000/api/internships/my-internships", {
+    const res = await fetch("/api/internships/my-internships", {
       headers: { "Authorization": `Bearer ${token}` },
     });
     const data = await res.json();
@@ -748,7 +748,7 @@ async function viewApplicants(internshipId) {
     div.style.display = "block";
 
     try {
-        const res = await fetch(`http://localhost:5000/api/recommendations/applicants/${internshipId}`, {
+        const res = await fetch(`/api/recommendations/applicants/${internshipId}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
         const applicants = await res.json();

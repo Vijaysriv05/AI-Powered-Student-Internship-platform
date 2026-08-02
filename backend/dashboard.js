@@ -9,7 +9,7 @@ async function loadProfile() {
   }
 
   try {
-    const res = await fetch("http://localhost:5000/api/profile/profile", {
+    const res = await fetch("/api/profile/profile", {
       method: "GET",
       headers: { "Authorization": `Bearer ${token}` }
     });

@@ -133,7 +133,7 @@ async function loadInstitutionProfile() {
   if (!token) return;
 
   try {
-    const res = await fetch("http://localhost:5000/api/institutions/profile", {
+    const res = await fetch("/api/institutions/profile", {
       headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"

@@ -336,7 +336,7 @@ async function sendMessage(message){
   if(uploadedResume) formData.append("resume", uploadedResume);
 
   try {
-    const res = await fetch("http://localhost:5000/api/chatbot/chat-student", { method:"POST", body:formData });
+    const res = await fetch("/api/chatbot/chat-student", { method:"POST", body:formData });
     const data = await res.json();
     if(data.reply) {
       appendChatMessage("bot", data.reply);
@@ -450,7 +450,7 @@ async function updateDashboardProfile() {
   if (!token) return;
 
   try {
-    const res = await fetch("http://localhost:5000/api/profile", {
+    const res = await fetch("/api/profile", {
       headers: { "Authorization": `Bearer ${token}` }
     });
     const profile = await res.json();
@@ -825,7 +825,7 @@ document.getElementById("skillForm").addEventListener("submit", async (e) => {
   resultDiv.innerHTML = "<p>Analyzing resume... Please wait.</p>";SpeechRecognition
 
   try {
-    const res = await fetch("http://localhost:5000/api/skillgap/analyzeResume", {
+    const res = await fetch("/api/skillgap/analyzeResume", {
       method: "POST",
       body: formData
     });

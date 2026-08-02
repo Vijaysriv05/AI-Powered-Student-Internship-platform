@@ -955,7 +955,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 async function getInternships() {
     try {
-      const res = await fetch("http://localhost:5000/api/internships/all", {
+      const res = await fetch("/api/internships/all", {
         headers: { Authorization: "Bearer " + localStorage.getItem("token") }
       });
 

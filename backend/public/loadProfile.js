@@ -3,7 +3,7 @@ async function loadProfile() {
   if (!email) return window.location.href = "login.html";
 
   try {
-    const res = await fetch(`http://localhost:5000/api/users/${email}`);
+    const res = await fetch(`/api/users/${email}`);
     if (!res.ok) throw new Error("Failed to fetch user data");
     const data = await res.json();
 
