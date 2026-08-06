@@ -1,15 +1,12 @@
 services:
   - type: web
     name: ai-powered-student-internship-platform
-    env: node
+    env: docker
     plan: free
     rootDir: backend
-    buildCommand: npm install
-    startCommand: npm start
+    dockerfilePath: Dockerfile
     autoDeploy: true
     envVars:
-      - key: NODE_VERSION
-        value: 20.18.0
       - key: NODE_ENV
         value: production
       - key: MONGO_URI
