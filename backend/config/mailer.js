@@ -4,12 +4,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { GMAIL_USER, GMAIL_PASS } = process.env;
-
-if (!GMAIL_USER || !GMAIL_PASS) {
-  console.error("❌ Missing GMAIL_USER or GMAIL_PASS in .env");
-  process.exit(1);
-}
+const GMAIL_USER = process.env.GMAIL_USER || "aiintern20.project@gmail.com";
+const GMAIL_PASS = process.env.GMAIL_PASS || "gnwpmjrxrgwmnhwq";
 
 // Create transporter for Gmail
 const transporter = nodemailer.createTransport({
@@ -22,21 +18,22 @@ const transporter = nodemailer.createTransport({
 
 /**
  * sendMail - sends an email using Gmail transporter
- * @param {Object} options - { to, subject, text, html }
+ * @param {Object} options - { to, subject, text, html, replyTo }
  */
-export const sendMail = async ({ to, subject, text, html }) => {
+export const sendMail = async ({ to, subject, text, html, replyTo }) => {
   try {
     const info = await transporter.sendMail({
-      from: GMAIL_USER,
+      from: `"AI-Intern Support" <${GMAIL_USER}>`,
       to,
       subject,
       text,
-      html
+      html,
+      replyTo
     });
     console.log("✅ Email sent:", info.messageId);
     return info;
   } catch (error) {
-    console.error("❌ Email send error:", error);
+    console.error("❌ Email send error:", error.message || error);
     throw error;
   }
 };

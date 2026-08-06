@@ -3,12 +3,15 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const GMAIL_USER = process.env.GMAIL_USER || "aiintern20.project@gmail.com";
+const GMAIL_PASS = process.env.GMAIL_PASS || "gnwpmjrxrgwmnhwq";
+
 // Create transporter using Gmail credentials
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS, // Needs an App Password if using Gmail
+    user: GMAIL_USER,
+    pass: GMAIL_PASS,
   },
 });
 
@@ -17,6 +20,11 @@ const transporter = nodemailer.createTransport({
  */
 export const sendStatusEmail = async (toEmail, studentName, companyName, newStatus, jobTitle) => {
   try {
+    if (!toEmail || !toEmail.includes("@")) {
+      console.log(`⚠️ Invalid recipient email address: "${toEmail}". Skipping email send.`);
+      return;
+    }
+
     const statusMessages = {
       'shortlisted': `🎉 Great news! You have been **shortlisted** by ${companyName} for the ${jobTitle} role. They will contact you shortly for the next steps.`,
       'selected': `🏆 Congratulations! You have been **selected** by ${companyName} for the ${jobTitle} role. Check your dashboard for official next steps!`,
@@ -27,7 +35,7 @@ export const sendStatusEmail = async (toEmail, studentName, companyName, newStat
     const messageBody = statusMessages[newStatus] || `Your application status for ${jobTitle} at ${companyName} has been updated to: **${newStatus.toUpperCase()}**.`;
 
     const mailOptions = {
-        from: '"AI Intern Updates" <aiintern20@project.com>', // Masked via Gmail
+        from: `"AI Intern Updates" <${GMAIL_USER}>`,
         to: toEmail,
         subject: `Update on your ${companyName} Application`,
         html: `
@@ -42,14 +50,9 @@ export const sendStatusEmail = async (toEmail, studentName, companyName, newStat
         `
     };
 
-    // Note: If running without valid creds, it will error nicely without crashing thanks to try/catch
-    if(process.env.GMAIL_USER && process.env.GMAIL_PASS) {
-        await transporter.sendMail(mailOptions);
-        console.log(`✉️ Email successfully sent to ${toEmail} regarding status: ${newStatus}`);
-    } else {
-        console.log(`⚠️ Email NOT sent. GMAIL_USER / GMAIL_PASS missing in .env. Mocking send to: ${toEmail}`);
-    }
+    await transporter.sendMail(mailOptions);
+    console.log(`✉️ Status update email successfully sent to ${toEmail} for status: ${newStatus}`);
   } catch (error) {
-    console.error("❌ Error sending status update email:", error);
+    console.error("❌ Error sending status update email:", error.message || error);
   }
 };
