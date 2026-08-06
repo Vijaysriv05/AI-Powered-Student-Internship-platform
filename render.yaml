@@ -3,7 +3,6 @@ services:
     name: ai-powered-student-internship-platform
     env: docker
     plan: free
-    rootDir: backend
     dockerfilePath: Dockerfile
     autoDeploy: true
     envVars:
