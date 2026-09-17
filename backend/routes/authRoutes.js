@@ -218,7 +218,7 @@ router.post("/login", async (req, res) => {
     const { email, password, role } = req.body || {};
     
     if (!email || !password || !role) {
-      return res.status(400).json({ message: "Please provide email, password, and role." });
+      return res.status(400).json({ message: "Please fill in all fields (email, password, and role)." });
     }
     
     // Normalize inputs
@@ -227,60 +227,24 @@ router.post("/login", async (req, res) => {
 
     console.log(`📡 Login attempt: ${normalizedEmail} as ${normalizedRole}`);
 
-    // ✅ Find user or auto-provision if missing for seamless login/demo
-    let user = await User.findOne({ email: normalizedEmail });
+    // 1. Find user in database
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
-      console.log(`✨ Auto-registering new user on login: ${normalizedEmail} as ${normalizedRole}`);
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user = await User.create({
-        name: normalizedEmail.split("@")[0],
-        email: normalizedEmail,
-        password: hashedPassword,
-        role: normalizedRole,
-        studentStatus: "College Student",
-        university: "Oxford Engineering College",
-        department: "CSE",
-      });
-
-      if (normalizedRole === "student") {
-        await Student.create({
-          userId: user._id,
-          university: "Oxford Engineering College",
-          department: "CSE",
-          studentStatus: "College Student",
-          contactEmail: normalizedEmail,
-        });
-      } else if (normalizedRole === "employer") {
-        await Employer.create({
-          userId: user._id,
-          companyName: normalizedEmail.split("@")[0] + " Corp",
-          companyEmail: normalizedEmail,
-        });
-      } else if (normalizedRole === "institution") {
-        await Institution.create({
-          userId: user._id,
-          institutionName: normalizedEmail.split("@")[0] + " Institute",
-          contactEmail: normalizedEmail,
-        });
-      }
-    } else {
-      // ✅ Update role if user changed role during login
-      if (user.role !== normalizedRole) {
-        console.log(`🔄 Updating role for ${normalizedEmail} from ${user.role} to ${normalizedRole}`);
-        user.role = normalizedRole;
-        await user.save();
-      }
-
-      // ✅ Verify password (if wrong password, reset to new password for seamless demo)
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        console.log(`🔑 Updating password for user ${normalizedEmail}`);
-        user.password = await bcrypt.hash(password, 10);
-        await user.save();
-      }
+      return res.status(400).json({ message: "Invalid email or password. Please check your credentials or register first." });
     }
 
-    // ✅ Generate JWT
+    // 2. Check if registered role matches selected role
+    if (user.role !== normalizedRole) {
+      return res.status(400).json({ message: `This account is registered as '${user.role}'. Please select '${user.role}' from the dropdown.` });
+    }
+
+    // 3. Compare hashed password using bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password." });
+    }
+
+    // 4. Generate JWT
     const secret = process.env.JWT_SECRET || "mySuperSecretKey123";
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -288,7 +252,7 @@ router.post("/login", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    console.log(`✅ Login Success: ${normalizedEmail}`);
+    console.log(`✅ Login Success: ${normalizedEmail} (${user.role})`);
     res.status(200).json({ message: "Login successful", token, user });
   } catch (err) {
     console.error("Login Error:", err);
