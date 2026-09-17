@@ -4,75 +4,104 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI-Intern Login</title>
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#6c63ff" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
+
 <style>
   body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(120deg, #2563eb, #9333ea);
+    margin:0;
+    font-family:'Segoe UI';
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(120deg,#2563eb,#9333ea);
   }
   .card {
-    background: #fff;
-    padding: 40px;
-    border-radius: 16px;
-    width: 380px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    animation: slideUp 0.8s ease;
+    background:#fff;
+    padding:40px;
+    border-radius:16px;
+    width:380px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    animation:slideUp 0.8s ease;
   }
-  .card img { width: 70px; margin-bottom: 10px; }
-  .card h2 { margin: 0 0 10px; color: #1e293b; }
-  .card p { color: #64748b; margin-bottom: 25px; font-size: 14px; }
+  .card img { width:70px; margin-bottom:10px; }
+  .card h2 { margin:0 0 10px; color:#1e293b; }
+  .card p { color:#64748b; margin-bottom:25px; font-size:14px; }
   input, select {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 15px;
-    transition: 0.3s;
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:15px;
+    transition:0.3s;
   }
   input:focus, select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 6px rgba(37,99,235,0.3);
-    outline: none;
+    border-color:#2563eb;
+    box-shadow:0 0 6px rgba(37,99,235,0.3);
+    outline:none;
   }
   button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    background: linear-gradient(90deg, #2563eb, #9333ea);
-    color: #fff;
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(90deg,#2563eb,#9333ea);
+    color:#fff;
     transition: transform 0.2s, box-shadow 0.2s;
   }
   button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    transform:translateY(-2px);
+    box-shadow:0 6px 12px rgba(0,0,0,0.2);
   }
-  .links { margin-top: 15px; font-size: 14px; }
-  .links a { color: #2563eb; text-decoration: none; margin: 0 5px; }
-  .links a:hover { text-decoration: underline; }
-  .msg {
+  .links { margin-top:15px; font-size:14px; }
+  .links a { color:#2563eb; text-decoration:none; margin:0 5px; }
+  .links a:hover { text-decoration:underline; }
+  .msg { 
+    margin-top:15px; 
+    font-size:14px; 
+    opacity:0; 
+    transition:all 0.4s ease; 
+    min-height: 20px;
+    padding: 10px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+  .msg.show { opacity:1; }
+  .success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; animation: shake 0.4s ease; }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+  /* Google button styling */
+  #googleBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #fff;
+    color: #333;
     margin-top: 15px;
-    font-size: 14px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.2s;
   }
-  .msg.show { opacity: 1; }
-  .success { color: green; }
-  .error { color: red; }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  #googleBtn:hover { background: #f5f5f5; }
 </style>
 </head>
 <body>
@@ -94,120 +123,144 @@
     <button type="submit">Login</button>
   </form>
 
+  <button id="googleBtn">ⓖ Continue with Google</button>
+
   <div class="links">
     <a href="forgot-password.html">Forgot Password?</a> |
     <a href="register.html">Register</a>
   </div>
 
-  <!-- Google Sign-In Button -->
-  <div style="margin-top: 15px; text-align:center;">
-    <div id="g_id_onload"
-         data-client_id="YOUR_GOOGLE_CLIENT_ID"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-shape="rectangular"
-         data-theme="outline"
-         data-text="signin_with"
-         data-size="large"
-         data-logo_alignment="left">
-    </div>
-  </div>
-
   <div class="msg" id="message"></div>
 </div>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
+<!-- ============================= -->
+<!-- 🧠 Main Login Handler -->
+<!-- ============================= -->
 <script>
-const loginForm = document.getElementById("loginForm");
-const messageBox = document.getElementById("message");
-const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:5000" : window.location.origin;
-
-// Helper: Redirect based on role
-function redirectByRole(role) {
-  role = role?.toLowerCase();
-  if (role === "student") window.location.href = "students.html";
-  else if (role === "employer") window.location.href = "employers.html";
-  else if (role === "institution") window.location.href = "institutions.html";
-  else window.location.href = "/login.html"; // fallback
-}
-
-// Helper: Show message
-function showMessage(text, type="success") {
-  messageBox.textContent = text;
-  messageBox.className = `msg ${type} show`;
-}
-
-// Normal login
-loginForm.addEventListener("submit", async (e) => {
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
   e.preventDefault();
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
   const role = document.getElementById("role").value;
+  const msgBox = document.getElementById("message");
+
+  // Reset message box
+  msgBox.classList.remove("show", "success", "error");
+  msgBox.innerHTML = "";
+
+  if(!email || !password || !role){
+    msgBox.innerHTML = "⚠️ Please fill all fields!";
+    msgBox.classList.add("show", "error");
+    return;
+  }
 
   try {
-    const res = await fetch(`${API_URL}/api/auth/login`, {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role }),
+      body: JSON.stringify({ email, password, role })
     });
 
     const data = await res.json();
-    console.log("Login response:", data); // <-- Debug
 
-    if (res.ok && data.user && data.user.role) {
+    if(res.ok && data.user){
+      // Show success message
+      msgBox.innerHTML = `✅ ${data.message || 'Login successful!'}`;
+      msgBox.classList.add("show", "success");
+      
+      // Save token and info
       localStorage.setItem("token", data.token);
-      showMessage("✅ Login successful! Redirecting...");
-      setTimeout(() => redirectByRole(data.user.role), 1200);
+      sessionStorage.setItem("userEmail", email);
+      
+      if (role === "employer") {
+        localStorage.setItem("employerToken", data.token);
+        localStorage.setItem("employerId", data.user.id || data.user._id);
+      }
+
+      // Redirect after a short delay so user sees success message
+      setTimeout(() => {
+        const redirects = {
+          student: "students.html",
+          employer: "employers.html",
+          institution: "institutions.html"
+        };
+        window.location.href = redirects[role] || "index.html";
+      }, 1500);
+      
     } else {
-      showMessage(data.message || "❌ Login failed", "error");
+      // Improved error feedback
+      msgBox.innerHTML = `❌ ${data.message || 'Invalid credentials'}`;
+      msgBox.classList.add("show", "error");
     }
-  } catch (err) {
-    console.error(err);
-    showMessage("❌ Network error. Make sure backend is running.", "error");
+  } catch(err){
+    console.error("Login error:", err);
+    msgBox.innerHTML = `❌ Connection error. Please try again.`;
+    msgBox.classList.add("show", "error");
   }
 });
+</script>
 
-// Google login
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
 function handleCredentialResponse(response) {
-  fetch(`${API_URL}/api/auth/google`, {
+  const id_token = response.credential;
+
+  fetch("/api/auth/google", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ credential: response.credential })
+    body: JSON.stringify({ id_token })
   })
   .then(res => res.json())
   .then(data => {
-    console.log("Google login response:", data); // <-- Debug
-    if (data.user && data.user.role) {
+    if(data.token && data.user){
       localStorage.setItem("token", data.token);
-      showMessage("✅ Google Login successful! Redirecting...");
-      setTimeout(() => redirectByRole(data.user.role), 1200);
+      sessionStorage.setItem("userEmail", data.user.email);
+      
+      const user = data.user;
+      const msgBox = document.getElementById("message");
+      msgBox.innerHTML = `✅ Login successful! Redirecting...`;
+      msgBox.classList.add("show", "success");
+
+      setTimeout(() => {
+          if(user.role === "student"){
+            window.location.href = "students.html";
+          } else if(user.role === "employer"){
+             localStorage.setItem("employerToken", data.token);
+             localStorage.setItem("employerId", data.user.id || data.user._id);
+            window.location.href = "employers.html";
+          } else if(user.role === "institution"){
+            window.location.href = "institutions.html";
+          } else {
+            window.location.href = "index.html";
+          }
+      }, 1500);
     } else {
-      showMessage("❌ Google login failed.", "error");
+      alert("❌ Google login failed");
     }
   })
   .catch(err => {
-    console.error(err);
-    showMessage("❌ Network error during Google login.", "error");
+    console.error("❌ Google login error:", err);
+    alert("❌ Google login error");
   });
 }
 
-// Initialize Google Sign-In
 window.onload = () => {
   google.accounts.id.initialize({
-    client_id: "your_client_id",
-    callback: handleCredentialResponse
+    client_id: "1087840007310-ijft0pho4qbdr46c3pu4jmhfme5c9omo.apps.googleusercontent.com",
+    callback: handleCredentialResponse,
+    ux_mode: "popup"
   });
-  google.accounts.id.renderButton(
-    document.querySelector(".g_id_signin"),
-    { theme: "outline", size: "large" }
-  );
+
+  document.getElementById("googleBtn").addEventListener("click", () => {
+    google.accounts.id.prompt();
+  });
 };
-
-
 </script>
-
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(() => console.log('SW registered'));
+}
+</script>
 </body>
 </html>
