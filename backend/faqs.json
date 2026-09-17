@@ -1,4 +1,22 @@
 {
+  "greetings": {
+    "keywords": ["hi", "hello", "hey", "greetings", "good morning", "good afternoon", "hi there", "hy", "hlo"],
+    "answers": {
+      "en": "Hi! 👋 Welcome to AI Career Advisor. How can I help you today? You can ask me about internships, resume tips, skill gaps, or interview preparation!",
+      "hi": "नमस्ते! 👋 AI करियर एडवाइजर में आपका स्वागत है। मैं आज आपकी क्या मदद कर सकता हूँ? आप मुझसे इंटर्नशिप, रिज्यूमे टिप्स, स्किल गैप्स या इंटरव्यू की तैयारी के बारे में पूछ सकते हैं!",
+      "ta": "வணக்கம்! 👋 AI தொழில் ஆலோசகருக்கு உங்களை வரவேற்கிறோம். இன்று நான் உங்களுக்கு எவ்வாறு உதவ முடியும்? இன்டர்ன்ஷிப், ரெசுமே குறிப்புகள் அல்லது நேர்காணல் தயாரிப்பு பற்றி நீங்கள் என்னிடம் கேட்கலாம்!",
+      "es": "¡Hola! 👋 Bienvenido al Asesor de Carrera de IA. ¿Cómo puedo ayudarte hoy? ¡Puedes preguntarme sobre pasantías, consejos de currículum o preparación de entrevistas!"
+    }
+  },
+  "help": {
+    "keywords": ["help", "what can you do", "who are you", "features", "assistance", "guide"],
+    "answers": {
+      "en": "I am your AI Career Assistant! Here is what I can do for you:\n• Find & recommend internships matching your skills\n• Analyze your resume and suggest ATS score improvements\n• Identify skill gaps and recommend learning paths\n• Conduct mock interviews and give feedback",
+      "hi": "मैं आपका AI करियर असिस्टेंट हूँ! मैं आपके लिए ये कर सकता हूँ:\n• आपके कौशल के अनुकूल इंटर्नशिप खोजना\n• आपके रिज्यूमे का विश्लेषण और ATS स्कोर सुधार\n• स्किल गैप्स की पहचान और कोर्स सुझाव\n• मॉक इंटरव्यू की तैयारी",
+      "ta": "நான் உங்கள் AI தொழில் உதவியாளர்! நான் உங்களுக்கு என்ன செய்ய முடியும்:\n• உங்கள் திறன்களுக்கு ஏற்ற இன்டர்ன்ஷிப்களைக் கண்டறிதல்\n• உங்கள் ரெசுமேவை பகுப்பாய்வு செய்து ATS மதிப்பெண் மேம்பாடு\n• திறன் இடைவெளிகளை கண்டறிந்து படிப்புகளை பரிந்துரைத்தல்",
+      "es": "¡Soy tu Asistente de Carrera de IA! Esto es lo que puedo hacer por ti:\n• Buscar pasantías que se adapten a tus habilidades\n• Analizar tu currículum y sugerir mejoras de puntuación ATS\n• Identificar brechas de habilidades y recomendar cursos"
+    }
+  },
   "apply": {
     "keywords": ["apply", "application", "how to apply", "how can i apply", "apply for internship", "आवेदन करें", "எப்படி விண்ணப்பிக்கலாம்", "cómo aplicar"],
     "answers": {
@@ -33,6 +51,24 @@
       "hi": "प्रत्येक इंटर्नशिप की अपनी अंतिम तिथि होती है। कृपया इंटर्नशिप लिस्टिंग पेज पर अंतिम तिथि देखें।",
       "ta": "ஒவ்வொரு இன்டர்ன்ஷிப்பிற்கும் தனிப்பட்ட கடைசி தேதி உள்ளது. கடைசி தேதியை பார்க்க இன்டர்ன்ஷிப் பட்டியலை சரிபார்க்கவும்.",
       "es": "Cada pasantía tiene su propia fecha límite. Por favor, consulte la página de listado de pasantías para la fecha límite."
+    }
+  },
+  "resume": {
+    "keywords": ["resume", "cv", "ats", "resume tips", "build resume", "resume score"],
+    "answers": {
+      "en": "To optimize your resume for ATS:\n1. Use standard section titles (Education, Experience, Skills).\n2. Include relevant technical keywords matching the job description.\n3. Keep formatting clean without complex tables or graphics.\n4. Highlight achievements with quantifiable metrics.",
+      "hi": "ATS के लिए अपने रिज्यूमे को अनुकूलित करने के लिए:\n1. मानक अनुभाग शीर्षकों का उपयोग करें (शिक्षा, अनुभव, कौशल)।\n2. जॉब विवरण से मेल खाते प्रासंगिक तकनीकी कीवर्ड शामिल करें।\n3. बिना जटिल तालिकाओं या ग्राफिक्स के लेआउट साफ रखें।",
+      "ta": "ATS க்கான உங்கள் ரெசுமேவை மேம்படுத்த:\n1. நிலையான தலைப்புகளைப் பயன்படுத்தவும் (கல்வி, அனுபவம், திறன்கள்).\n2. வேலையின் விளம்பரத்துடன் பொருந்தும் தொழில்நுட்ப முக்கிய வார்த்தைகளைச் சேர்க்கவும்.",
+      "es": "Para optimizar su currículum para ATS:\n1. Use títulos de sección estándar (Educación, Experiencia, Habilidades).\n2. Incluya palabras clave técnicas relevantes."
+    }
+  },
+  "skills": {
+    "keywords": ["skills", "skill gap", "courses", "upskill", "technologies", "what to learn"],
+    "answers": {
+      "en": "In-demand skills for tech internships right now include:\n• Web Development: HTML, CSS, JavaScript, React, Node.js\n• Data Science & AI: Python, SQL, Pandas, Machine Learning\n• Cloud & DevOps: Git, Docker, AWS/GCP\nCheck our Skill Gap Analyzer tab to see personalized recommendations!",
+      "hi": "वर्तमान में टेक इंटर्नशिप के लिए मांग में कौशल:\n• वेब डेवलपमेंट: HTML, CSS, JavaScript, React, Node.js\n• डेटा साइंस और AI: Python, SQL, Machine Learning\nव्यक्तिगत सुझाव देखने के लिए हमारे Skill Gap Analyzer पर जाएँ!",
+      "ta": "தொழில்நுட்ப இன்டர்ன்ஷிப்பிற்கான தற்போதைய திறன்கள்:\n• வலை மேம்பாடு: HTML, CSS, JavaScript, React, Node.js\n• தரவு அறிவியல் & AI: Python, SQL, Machine Learning",
+      "es": "Las habilidades más demandadas actualmente incluyen Web Dev (React, Node.js) y Data Science (Python, SQL)."
     }
   }
 }

@@ -7,10 +7,118 @@ import { OpenAI } from "openai";
 import { franc } from "franc";
 
 const router = express.Router();
-const openai = new OpenAI({ 
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1"
-});
+function getAIClient() {
+  const groqKey = (process.env.GROQ_API_KEY || "").trim();
+  const geminiKey = (process.env.GEMINI_API_KEY || "").trim();
+  const openaiKey = (process.env.OPENAI_API_KEY || "").trim();
+
+  if (groqKey && !groqKey.includes("your_")) {
+    return {
+      client: new OpenAI({
+        apiKey: groqKey,
+        baseURL: "https://api.groq.com/openai/v1",
+        timeout: 20000
+      }),
+      model: "openai/gpt-oss-20b"
+    };
+  }
+
+  if (geminiKey && !geminiKey.includes("your_")) {
+    return {
+      client: new OpenAI({
+        apiKey: geminiKey,
+        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+        timeout: 20000
+      }),
+      model: "gemini-1.5-flash"
+    };
+  }
+
+  if (openaiKey && !openaiKey.includes("your_")) {
+    return {
+      client: new OpenAI({
+        apiKey: openaiKey,
+        timeout: 20000
+      }),
+      model: "gpt-4o-mini"
+    };
+  }
+
+  return {
+    client: new OpenAI({
+      apiKey: "dummy_key",
+      baseURL: "https://api.groq.com/openai/v1",
+      timeout: 20000
+    }),
+    model: "openai/gpt-oss-20b"
+  };
+}
+
+async function createAICompletion(params) {
+  const groqKey = (process.env.GROQ_API_KEY || "").trim();
+  const geminiKey = (process.env.GEMINI_API_KEY || "").trim();
+  const openaiKey = (process.env.OPENAI_API_KEY || "").trim();
+
+  // 1. Direct fetch to Groq API (Fast & Reliable)
+  if (groqKey && !groqKey.includes("your_")) {
+    const models = ["openai/gpt-oss-20b", "groq/compound-mini", "qwen/qwen3.8-27b", "openai/gpt-oss-120b"];
+    for (const model of models) {
+      try {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${groqKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model,
+            messages: params.messages,
+            max_tokens: params.max_tokens || 800,
+            temperature: params.temperature || 0.7
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.choices && data.choices[0] && data.choices[0].message) {
+            return { choices: [{ message: { content: data.choices[0].message.content } }] };
+          }
+        }
+      } catch (e) {
+        console.warn(`Groq fetch model ${model} error:`, e.message);
+      }
+    }
+  }
+
+  // 2. Direct fetch to Gemini API
+  if (geminiKey && !geminiKey.includes("your_")) {
+    try {
+      const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${geminiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gemini-1.5-flash",
+          messages: params.messages,
+          max_tokens: params.max_tokens || 800
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data;
+      }
+    } catch (e) {
+      console.warn("Gemini fetch error:", e.message);
+    }
+  }
+
+  // 3. Fallback to OpenAI SDK
+  const { client, model: defaultModel } = getAIClient();
+  return await client.chat.completions.create({ ...params, model: defaultModel });
+}
+
 const upload = multer({ dest: "uploads/" });
 
 // ---------------- Helper: Extract resume text ----------------
@@ -57,15 +165,26 @@ function findFaqMatch(message) {
   const msg = message.toLowerCase();
   const userLang = detectLang(msg);
 
-  // Direct keyword match
+  // Direct keyword match with word boundary check for short words (<= 3 chars)
   for (const faqKey in faqs) {
     const { keywords, answers } = faqs[faqKey];
-    if (keywords.some(k => msg.includes(k.toLowerCase()))) {
-      return {
-        answer: answers[userLang] || answers["en"],
-        matchedKeyword: keywords.find(k => msg.includes(k.toLowerCase())),
-        score: 1.0
-      };
+    for (const k of keywords) {
+      const kw = k.toLowerCase();
+      let matched = false;
+      if (kw.length <= 3) {
+        const regex = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        matched = regex.test(msg);
+      } else {
+        matched = msg.includes(kw);
+      }
+
+      if (matched) {
+        return {
+          answer: answers[userLang] || answers["en"],
+          matchedKeyword: k,
+          score: 1.0
+        };
+      }
     }
   }
 
@@ -107,8 +226,9 @@ router.post("/chatbotRoutes.js", upload.single("resume"), async (req, res) => {
     const messages = [{ role: "system", content: systemPrompt }];
     if (message) messages.push({ role: "user", content: message });
 
-    const response = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+    const { client, model } = getAIClient();
+    const response = await client.chat.completions.create({
+      model,
       messages
     });
 
@@ -118,6 +238,31 @@ router.post("/chatbotRoutes.js", upload.single("resume"), async (req, res) => {
     res.status(500).json({ reply: "Something went wrong on the server." });
   }
 });
+
+function getFallbackCareerResponse(message) {
+  const msg = (message || "").toLowerCase();
+  
+  if (msg.includes("hi") || msg.includes("hello") || msg.includes("hey") || msg.includes("hlo") || msg.includes("greetings")) {
+    return "Hi! 👋 Welcome to AI Career Advisor. How can I help you today? Ask me about internships, skills, resume tips, or interview preparation!";
+  }
+  if (msg.includes("resume") || msg.includes("cv") || msg.includes("ats")) {
+    return "Here are top tips to optimize your resume:\n1. Keep standard section headings (Education, Skills, Experience).\n2. Include relevant technical keywords matching your target job description.\n3. Quantify your accomplishments (e.g., 'Built an app used by 100+ users').\n4. Use our Resume Analyser tool on the platform to check your ATS score!";
+  }
+  if (msg.includes("intern") || msg.includes("job") || msg.includes("apply") || msg.includes("hiring")) {
+    return "You can find and apply for internships directly on our platform! Check the 'Actively Hiring' section on your dashboard, review the requirements, and click 'Apply' to submit your application.";
+  }
+  if (msg.includes("skill") || msg.includes("course") || msg.includes("learn") || msg.includes("python") || msg.includes("java")) {
+    return "Top in-demand skills for technical internships right now include:\n• Web Development: HTML, CSS, JavaScript, React, Node.js\n• Data Science: Python, SQL, Machine Learning\n• Cloud & Tools: Git, Docker, Cloud Platforms\nUse our Skill Gap Analyzer tab to get customized course recommendations!";
+  }
+  if (msg.includes("interview") || msg.includes("prep") || msg.includes("question") || msg.includes("mock")) {
+    return "For interview preparation:\n1. Prepare clear explanations of your projects using the STAR method (Situation, Task, Action, Result).\n2. Practice coding and technical core fundamentals.\n3. Try our built-in Mock Interview tool under the workshops tab!";
+  }
+  if (msg.includes("stipend") || msg.includes("salary") || msg.includes("pay")) {
+    return "Most internships on our platform offer stipends ranging from ₹5,000 to ₹20,000+ per month depending on role and performance.";
+  }
+  
+  return "Thanks for reaching out! I'm your AI Career Advisor. You can ask me about available internships, resume optimization, in-demand technical skills, or interview preparation tips!";
+}
 
 // ---------------- Chatbot message route ----------------
 router.post("/message", async (req, res) => {
@@ -136,11 +281,10 @@ router.post("/message", async (req, res) => {
     });
   }
 
-  // Fallback to OpenAI
+  // Fallback to OpenAI / LLM
   try {
     const userLang = detectLang(userMessage);
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+    const completion = await createAICompletion({
       messages: [
         {
           role: "system",
@@ -154,10 +298,11 @@ router.post("/message", async (req, res) => {
     const aiReply = completion.choices[0].message.content.trim();
     return res.json({ reply: aiReply, source: "ai" });
   } catch (err) {
-    console.error("OpenAI error:", err);
+    console.error("OpenAI/Groq error, using smart fallback:", err.message || err);
+    const fallbackReply = getFallbackCareerResponse(userMessage);
     return res.json({
-      reply: "Sorry, AI service is unavailable. Please try again later.",
-      source: "error"
+      reply: fallbackReply,
+      source: "fallback"
     });
   }
 });
@@ -201,8 +346,7 @@ router.post("/chat-student", upload.single("resume"), async (req, res) => {
       messages.push({ role: "system", content: `Student resume content:\n${resumeText}` });
     if (userMessage) messages.push({ role: "user", content: userMessage });
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+    const completion = await createAICompletion({
       messages,
       max_tokens: 800
     });
@@ -211,10 +355,8 @@ router.post("/chat-student", upload.single("resume"), async (req, res) => {
     res.json({ reply: aiReply });
   } catch (err) {
     console.error("Student chatbot error:", err.message || err);
-    const errorMsg = err.message && err.message.includes("insufficient_quota")
-      ? "OpenAI Quota Exceeded. Please check your billing/credits."
-      : "Something went wrong with the chatbot. Please try again later.";
-    res.status(500).json({ reply: errorMsg });
+    const fallbackReply = getFallbackCareerResponse(userMessage);
+    res.json({ reply: fallbackReply, source: "fallback" });
   }
 });
 
@@ -231,9 +373,7 @@ router.post("/employer", async (req, res) => {
     return res.status(400).json({ reply: "Please provide a message." });
 
   try {
-    // Use gpt-4o-mini (same as student chatbot) to avoid model-specific quota issues
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+    const completion = await createAICompletion({
       messages: [
         {
           role: "system",
@@ -251,9 +391,8 @@ router.post("/employer", async (req, res) => {
     return res.json({ reply: aiReply });
   } catch (err) {
     console.error("Employer OpenAI error:", err);
-    return res
-      .status(500)
-      .json({ reply: "⚠️ Error: Could not fetch AI response." });
+    const fallbackReply = getFallbackCareerResponse(message);
+    return res.json({ reply: fallbackReply, source: "fallback" });
   }
 });
 
@@ -290,8 +429,7 @@ router.post("/mock-interview-question", async (req, res) => {
         Do NOT repeat: ${pastQuestionsText}`;
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+    const completion = await createAICompletion({
       messages: [{ role: "system", content: prompt }],
       temperature: 0.8,
       max_tokens: 400,
@@ -327,8 +465,7 @@ router.post("/mock-interview-evaluate", async (req, res) => {
       }
     `;
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+    const completion = await createAICompletion({
       messages: [{ role: "user", content: prompt }],
       temperature: 0.5,
       response_format: { type: "json_object" }
